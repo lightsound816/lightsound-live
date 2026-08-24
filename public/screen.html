@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyección en Vivo - XV Valentina</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .top-bar {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 70px;
+            padding: 0 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 20;
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+        }
+        .event-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ff4081; }
+        .brand-logo { height: 38px; }
+
+        .stage {
+            width: 100vw; height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            padding: 80px 40px 40px 40px;
+        }
+        .photo-card {
+            position: relative;
+            max-width: 90vw; max-height: calc(100vh - 120px);
+            display: flex; flex-direction: column; align-items: center;
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .photo-card img {
+            max-width: 85vw;
+            max-height: calc(100vh - 180px);
+            object-fit: contain;
+            border-radius: 12px;
+            border: 4px solid #fff;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+        }
+        .text-only-card {
+            background: #111;
+            border: 3px solid #ff0000;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 70vw;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+        }
+        .text-only-card p { font-size: 2rem; font-style: italic; line-height: 1.4; }
+
+        .author-badge {
+            margin-top: 10px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #ff0000;
+            padding: 8px 24px;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        .message-sub {
+            font-size: 1.1rem;
+            color: #f1f1f1;
+            margin-top: 6px;
+            max-width: 80vw;
+            text-align: center;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 16px;
+            border-radius: 8px;
+        }
+
+        .qr-overlay {
+            position: absolute; bottom: 25px; left: 25px;
+            background: rgba(17, 17, 17, 0.9);
+            border: 2px solid #ff0000; border-radius: 14px;
+            padding: 12px; display: flex; align-items: center; gap: 12px; z-index: 30;
+        }
+        .qr-text strong { display: block; font-size: 0.95rem; color: #ff0000; }
+        .qr-text span { font-size: 0.7rem; color: #aaa; text-transform: uppercase; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .emoji-blast {
+            position: absolute; bottom: -50px; font-size: 4rem; pointer-events: none; z-index: 40;
+            animation: riseUp 2.8s ease-in forwards;
+        }
+        @keyframes riseUp {
+            0% { transform: translateY(0) scale(0.7); opacity: 1; }
+            100% { transform: translateY(-115vh) scale(1.6); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="event-title">Valentina ✨ XV</div>
+        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo" onerror="this.style.display='none'">
+    </div>
+
+    <div class="stage" id="stage">
+        <div class="photo-card" id="cardBox">
+            <img id="mainImg" src="https://placehold.co/1200x800/111/fff?text=Esperando+recuerdos..." alt="Proyección">
+            <div class="author-badge" id="mainAuthor">¡Escanea el QR para participar!</div>
+            <div class="message-sub" id="mainMsg" style="display:none;"></div>
+        </div>
+    </div>
+
+    <div class="qr-overlay">
+        <div id="qrcode"></div>
+        <div class="qr-text">
+            <span>Fotos • Audios • Mensajes</span>
+            <strong>ESCANEA AQUÍ</strong>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+
+        new QRCode(document.getElementById("qrcode"), {
+            text: `${window.location.origin}/upload.html`,
+            width: 85, height: 85, colorDark: "#ffffff", colorLight: "#111111"
+        });
+
+        socket.on('new_content', (data) => {
+            const stage = document.getElementById('stage');
+            stage.innerHTML = ''; // Limpiar contenedor
+
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+
+            if (data.photoUrl) {
+                const img = document.createElement('img');
+                img.src = data.photoUrl;
+                card.appendChild(img);
+            } else if (data.message) {
+                card.className = 'text-only-card';
+                const p = document.createElement('p');
+                p.textContent = `“${data.message}”`;
+                card.appendChild(p);
+            }
+
+            const author = document.createElement('div');
+            author.className = 'author-badge';
+            author.textContent = data.author;
+            card.appendChild(author);
+
+            if (data.photoUrl && data.message) {
+                const msg = document.createElement('div');
+                msg.className = 'message-sub';
+                msg.textContent = `“${data.message}”`;
+                card.appendChild(msg);
+            }
+
+            stage.appendChild(card);
+        });
+
+        socket.on('show_reaction', (emoji) => {
+            const el = document.createElement('div');
+            el.className = 'emoji-blast';
+            el.textContent = emoji;
+            el.style.left = `${Math.random() * 75 + 10}vw`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 2800);
+        });
+    </script>
+</body>
+</html>

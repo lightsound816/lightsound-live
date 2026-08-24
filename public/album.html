@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Álbum Digital - XV Valentina</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0e0e0e; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #ff4081; }
+        header p { color: #888; margin-top: 5px; }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .memory-card {
+            background: #181818;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #282828;
+            display: flex;
+            flex-direction: column;
+        }
+        .memory-card img { width: 100%; height: 250px; object-fit: cover; }
+        
+        .memory-body { padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .memory-author { font-weight: 700; color: #ff4081; margin-bottom: 6px; font-size: 1.1rem; }
+        .memory-msg { font-style: italic; color: #ddd; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
+        .memory-time { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: right; }
+
+        audio { width: 100%; margin-top: 10px; height: 35px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Álbum de Recuerdos ✨</h1>
+        <p>XV Valentina • Libro de Visitas Digital</p>
+    </header>
+
+    <div class="gallery-grid" id="grid"></div>
+
+    <script>
+        async function loadAlbum() {
+            const res = await fetch('/api/album');
+            const data = await res.json();
+            const grid = document.getElementById('grid');
+
+            if (!data.length) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#666;">Aún no hay recuerdos guardados.</p>';
+                return;
+            }
+
+            grid.innerHTML = data.map(item => `
+                <div class="memory-card">
+                    ${item.photoUrl ? `<img src="${item.photoUrl}" alt="Foto">` : ''}
+                    <div class="memory-body">
+                        <div>
+                            <div class="memory-author">${item.author}</div>
+                            ${item.message ? `<div class="memory-msg">“${item.message}”</div>` : ''}
+                            ${item.audioUrl ? `<audio controls src="${item.audioUrl}"></audio>` : ''}
+                        </div>
+                        <div class="memory-time">${item.timestamp}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        loadAlbum();
+    </script>
+</body>
+</html>
