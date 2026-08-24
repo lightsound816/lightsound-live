@@ -2,15 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Álbum Digital - EVENTO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Álbum Digital - Light Sound</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0e0e0e; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px; }
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #ffffff; }
-        header p { color: #888; margin-top: 5px; }
+        body { background: #0a0a0a; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px 15px; }
+        header { text-align: center; margin-bottom: 25px; }
+        header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ff4081; }
+        header p { color: #888; font-size: 0.85rem; margin-top: 4px; }
 
         .gallery-grid {
             display: grid;
@@ -21,55 +22,121 @@
         }
 
         .memory-card {
-            background: #181818;
-            border-radius: 12px;
+            background: #141414;
+            border-radius: 14px;
             overflow: hidden;
-            border: 1px solid #282828;
+            border: 1px solid #222;
             display: flex;
             flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
         }
-        .memory-card img { width: 100%; height: 250px; object-fit: cover; }
-        
-        .memory-body { padding: 15px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .memory-author { font-weight: 700; color: #ffffff; margin-bottom: 6px; font-size: 1.1rem; }
-        .memory-msg { font-style: italic; color: #ddd; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
-        .memory-time { font-size: 0.75rem; color: #666; margin-top: 8px; text-align: right; }
 
-        audio { width: 100%; margin-top: 10px; height: 35px; }
+        .memory-card img {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            background: #000;
+        }
+        
+        .memory-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .memory-author {
+            font-weight: 700;
+            color: #ff4081;
+            margin-bottom: 6px;
+            font-size: 1.1rem;
+        }
+
+        .memory-msg {
+            font-style: italic;
+            color: #ddd;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        /* Reproductor de Audio Optimizado para iOS */
+        .audio-player-container {
+            margin-top: 10px;
+            background: #1f1f1f;
+            border-radius: 8px;
+            padding: 8px;
+            border: 1px solid #333;
+        }
+
+        audio {
+            width: 100%;
+            height: 38px;
+            outline: none;
+        }
+
+        .memory-time {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 10px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
     <header>
         <h1>Álbum de Recuerdos ✨</h1>
-        <p>EVENTO • Libro de Visitas Digital</p>
+        <p>Libro de Visitas Digital • Light Sound</p>
     </header>
 
     <div class="gallery-grid" id="grid"></div>
 
     <script>
         async function loadAlbum() {
-            const res = await fetch('/api/album');
-            const data = await res.json();
             const grid = document.getElementById('grid');
+            try {
+                const res = await fetch('/api/album');
+                const data = await res.json();
 
-            if (!data.length) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#666;">Aún no hay recuerdos guardados.</p>';
-                return;
-            }
+                if (!data || !data.length) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#777; margin-top: 40px;">Aún no hay recuerdos guardados.</p>';
+                    return;
+                }
 
-            grid.innerHTML = data.map(item => `
-                <div class="memory-card">
-                    ${item.photoUrl ? `<img src="${item.photoUrl}" alt="Foto">` : ''}
-                    <div class="memory-body">
-                        <div>
-                            <div class="memory-author">${item.author}</div>
-                            ${item.message ? `<div class="memory-msg">“${item.message}”</div>` : ''}
-                            ${item.audioUrl ? `<audio controls src="${item.audioUrl}"></audio>` : ''}
+                grid.innerHTML = data.map(item => {
+                    let audioMarkup = '';
+                    if (item.audioUrl) {
+                        const isMp4 = item.audioUrl.endsWith('.mp4');
+                        const mimeType = isMp4 ? 'audio/mp4' : 'audio/webm';
+                        
+                        audioMarkup = `
+                            <div class="audio-player-container">
+                                <audio controls preload="metadata" playsinline webkit-playsinline>
+                                    <source src="${item.audioUrl}" type="${mimeType}">
+                                    Tu dispositivo no soporta la reproducción directa.
+                                </audio>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="memory-card">
+                            ${item.photoUrl ? `<img src="${item.photoUrl}" alt="Foto de ${item.author}">` : ''}
+                            <div class="memory-body">
+                                <div>
+                                    <div class="memory-author">${item.author}</div>
+                                    ${item.message ? `<div class="memory-msg">“${item.message}”</div>` : ''}
+                                    ${audioMarkup}
+                                </div>
+                                <div class="memory-time">${item.timestamp}</div>
+                            </div>
                         </div>
-                        <div class="memory-time">${item.timestamp}</div>
-                    </div>
-                </div>
-            `).join('');
+                    `;
+                }).join('');
+            } catch (err) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#ff4757;">Error al cargar el álbum.</p>';
+            }
         }
         loadAlbum();
     </script>

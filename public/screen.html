@@ -37,8 +37,8 @@
         .event-title {
             font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
-            color: #ff0000;
-            text-shadow: 0 2px 10px rgba(255, 35, 35, 0.5);
+            color: #ff4081;
+            text-shadow: 0 2px 10px rgba(255, 64, 129, 0.5);
         }
 
         /* Logo Centrado en la parte superior */
@@ -46,9 +46,9 @@
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            height: 52px;
+            height: 50px;
             object-fit: contain;
-            filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.4));
+            filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.45));
         }
 
         /* Escenario de Proyección */
@@ -58,13 +58,13 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 100px 40px 50px 40px;
+            padding: 95px 40px 45px 40px;
         }
 
         .photo-card {
             position: relative;
             max-width: 90vw;
-            max-height: calc(100vh - 140px);
+            max-height: calc(100vh - 130px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -73,7 +73,7 @@
 
         .photo-card img {
             max-width: 85vw;
-            max-height: calc(100vh - 190px);
+            max-height: calc(100vh - 200px);
             object-fit: contain;
             border-radius: 12px;
             border: 4px solid #fff;
@@ -84,21 +84,23 @@
         .text-only-card {
             background: #111;
             border: 3px solid #ff0000;
-            padding: 40px;
+            padding: 35px 45px;
             border-radius: 20px;
-            max-width: 70vw;
+            max-width: 75vw;
             text-align: center;
             box-shadow: 0 0 50px rgba(255, 0, 0, 0.35);
+            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .text-only-card p {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-style: italic;
             line-height: 1.4;
+            color: #fff;
         }
 
         .author-badge {
-            margin-top: 12px;
+            margin-top: 10px;
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #ff0000;
             padding: 8px 26px;
@@ -117,6 +119,29 @@
             background: rgba(0,0,0,0.75);
             padding: 6px 16px;
             border-radius: 8px;
+            font-style: italic;
+        }
+
+        /* Insignia para Audios Dejados */
+        .audio-notice-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            background: linear-gradient(90deg, #1e3c72, #2a5298);
+            border: 1px solid #00d2d3;
+            color: #fff;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(0, 210, 211, 0.4);
+            animation: pulseNotice 2s infinite alternate;
+        }
+
+        @keyframes pulseNotice {
+            from { transform: scale(0.98); }
+            to { transform: scale(1.02); }
         }
 
         /* Panel QR Inferior Izquierdo */
@@ -169,22 +194,21 @@
 </head>
 <body>
 
-    <!-- Barra con Título a la Izquierda y Logo al Centro -->
+    <!-- Barra con Título y Logo Centrado -->
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center">
+        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
     </div>
 
-    <!-- Contenedor Principal de la Foto -->
+    <!-- Escenario Principal -->
     <div class="stage" id="stage">
         <div class="photo-card" id="cardBox">
             <img id="mainImg" src="https://placehold.co/1200x800/111/fff?text=Esperando+recuerdos..." alt="Proyección">
             <div class="author-badge" id="mainAuthor">¡Escanea el QR para participar!</div>
-            <div class="message-sub" id="mainMsg" style="display:none;"></div>
         </div>
     </div>
 
-    <!-- QR Flotante -->
+    <!-- Panel QR -->
     <div class="qr-overlay">
         <div id="qrcode"></div>
         <div class="qr-text">
@@ -196,6 +220,7 @@
     <script>
         const socket = io();
 
+        // Generar QR dinámico
         new QRCode(document.getElementById("qrcode"), {
             text: `${window.location.origin}/upload.html`,
             width: 80,
@@ -204,39 +229,59 @@
             colorLight: "#111111"
         });
 
+        // Manejador de nuevo contenido en tiempo real
         socket.on('new_content', (data) => {
             const stage = document.getElementById('stage');
             stage.innerHTML = '';
 
             const card = document.createElement('div');
-            card.className = 'photo-card';
 
+            // Caso 1: Trae Foto
             if (data.photoUrl) {
+                card.className = 'photo-card';
                 const img = document.createElement('img');
                 img.src = data.photoUrl;
                 card.appendChild(img);
-            } else if (data.message) {
+
+                const author = document.createElement('div');
+                author.className = 'author-badge';
+                author.textContent = data.author;
+                card.appendChild(author);
+
+                if (data.message) {
+                    const msg = document.createElement('div');
+                    msg.className = 'message-sub';
+                    msg.textContent = `“${data.message}”`;
+                    card.appendChild(msg);
+                }
+            } 
+            // Caso 2: Solo Texto y/o Audio (Sin Foto)
+            else {
                 card.className = 'text-only-card';
-                const p = document.createElement('p');
-                p.textContent = `“${data.message}”`;
-                card.appendChild(p);
+                if (data.message) {
+                    const p = document.createElement('p');
+                    p.textContent = `“${data.message}”`;
+                    card.appendChild(p);
+                }
+                const author = document.createElement('div');
+                author.className = 'author-badge';
+                author.style.marginTop = '18px';
+                author.textContent = data.author;
+                card.appendChild(author);
             }
 
-            const author = document.createElement('div');
-            author.className = 'author-badge';
-            author.textContent = data.author;
-            card.appendChild(author);
-
-            if (data.photoUrl && data.message) {
-                const msg = document.createElement('div');
-                msg.className = 'message-sub';
-                msg.textContent = `“${data.message}”`;
-                card.appendChild(msg);
+            // Leyenda si el invitado grabó un audio
+            if (data.audioUrl) {
+                const audioBadge = document.createElement('div');
+                audioBadge.className = 'audio-notice-badge';
+                audioBadge.innerHTML = '🎙️ ¡Dejó un mensaje de voz! Escúchalo en el álbum digital';
+                card.appendChild(audioBadge);
             }
 
             stage.appendChild(card);
         });
 
+        // Reacciones con emojis en pantalla
         socket.on('show_reaction', (emoji) => {
             const el = document.createElement('div');
             el.className = 'emoji-blast';
