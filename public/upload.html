@@ -33,6 +33,17 @@
         .reactions { display: flex; justify-content: center; gap: 12px; margin: 20px 0; }
         .reactions button { font-size: 1.6rem; background: var(--card); border: 1px solid #333; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; }
 
+       /* Pie de página y Redes Sociales de Light Sound */
+        footer {
+            margin-top: auto;
+            width: 100%;
+            border-top: 1px solid #222;
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
         footer { margin-top: 25px; border-top: 1px solid #222; padding-top: 15px; }
         footer img { height: 25px; }
     </style>
@@ -68,6 +79,17 @@
 
     <footer>
         <img src="/logo_lightsound.jpg" alt="Light Sound" onerror="this.style.display='none'">
+        <div class="social-links">
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/lightsoundprofessionalteam/" target="_blank">
+                <i class="fab fa-instagram"></i>
+            </a>
+            <!-- WhatsApp (Formato API) -->
+            <a href="https://wa.me/526622885556?text=Cotización%20Proyección%20Live" target="_blank">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+        <p class="company-contact">Light Sound Professional Team | Wh: 662-288-5556</p>
     </footer>
 
     <script>
