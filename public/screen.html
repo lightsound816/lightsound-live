@@ -60,7 +60,7 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            display: flex;
+            display: none;
             justify-content: center;
             align-items: center;
             font-size: 1.2rem;
@@ -77,6 +77,7 @@
             font-size: 0.85rem;
             font-weight: 600;
             color: #00d2d3;
+            display: none;
         }
 
         .stage {
@@ -202,8 +203,8 @@
         <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
         
         <div class="queue-status-panel">
-            <div class="queue-badge" id="queueBadge" style="display:none;">En espera: 0</div>
-            <div class="timer-circle" id="timerCircle" style="display:none;">30</div>
+            <div class="queue-badge" id="queueBadge">En espera: 0</div>
+            <div class="timer-circle" id="timerCircle">30</div>
         </div>
     </div>
 
@@ -239,7 +240,7 @@
             queue.push(data);
             updateQueueStatus();
             
-            // Si el video actual estaba repitiéndose solo en loop, avanza de inmediato
+            // Si el video actual estaba repitiéndose solo en loop sin contador, pasar al nuevo de inmediato
             if (isLoopingAlone) {
                 isLoopingAlone = false;
                 if (countdownInterval) clearInterval(countdownInterval);
@@ -272,23 +273,20 @@
             const data = queue.shift();
             updateQueueStatus();
 
-            const timerEl = document.getElementById('timerCircle');
-            timerEl.style.display = 'flex';
-
             if (countdownInterval) clearInterval(countdownInterval);
 
             // Caso 1: Video
             if (data.videoUrl) {
-                renderVideoSlide(data, (videoDuration) => {
-                    let duration = Math.min(Math.ceil(videoDuration) || 30, 30);
+                renderVideoSlide(data, (exactDuration) => {
+                    let duration = Math.min(Math.ceil(exactDuration) || 30, 30);
                     startCountdown(duration, () => {
-                        // Al terminar el tiempo del video:
+                        // Al terminar la primera pasada:
                         if (queue.length > 0) {
                             processNextInQueue();
                         } else {
-                            // No hay nadie en espera: activar bucle infinito
+                            // Sin nadie en espera: quitar contador y dejar en loop continuo
                             isLoopingAlone = true;
-                            timerEl.style.display = 'none';
+                            document.getElementById('timerCircle').style.display = 'none';
                         }
                     });
                 });
@@ -296,11 +294,11 @@
             // Caso 2: Foto (30s)
             else if (data.photoUrl) {
                 renderPhotoSlide(data);
-                startCountdown(25, () => {
+                startCountdown(30, () => {
                     if (queue.length > 0) {
                         processNextInQueue();
                     } else {
-                        timerEl.style.display = 'none';
+                        document.getElementById('timerCircle').style.display = 'none';
                         isPresenting = false;
                     }
                 });
@@ -308,11 +306,11 @@
             // Caso 3: Solo Texto / Audio (15s)
             else {
                 renderTextSlide(data);
-                startCountdown(10, () => {
+                startCountdown(15, () => {
                     if (queue.length > 0) {
                         processNextInQueue();
                     } else {
-                        timerEl.style.display = 'none';
+                        document.getElementById('timerCircle').style.display = 'none';
                         isPresenting = false;
                     }
                 });
@@ -322,6 +320,7 @@
         function startCountdown(seconds, onComplete) {
             let timeLeft = seconds;
             const timerEl = document.getElementById('timerCircle');
+            timerEl.style.display = 'flex';
             timerEl.textContent = timeLeft;
 
             countdownInterval = setInterval(() => {
@@ -343,17 +342,30 @@
 
             const video = document.createElement('video');
             video.src = data.videoUrl;
+            video.preload = 'auto';
             video.autoplay = true;
-            video.loop = true; // Activar loop continuo
+            video.loop = true;
             video.playsInline = true;
+            video.muted = true; // Evita bloqueos de autoplay
 
-            video.onloadedmetadata = () => {
-                onReadyDuration(video.duration);
+            let durationDispatched = false;
+
+            // Espera a que cargue suficiente video para no trabarse
+            video.oncanplay = () => {
+                video.play().catch(() => {});
+                if (!durationDispatched && video.duration) {
+                    durationDispatched = true;
+                    onReadyDuration(video.duration);
+                }
             };
 
+            // Fallback por si la duración tarda en responder
             setTimeout(() => {
-                if (!video.duration) onReadyDuration(30);
-            }, 1000);
+                if (!durationDispatched) {
+                    durationDispatched = true;
+                    onReadyDuration(video.duration || 30);
+                }
+            }, 800);
 
             card.appendChild(video);
 
