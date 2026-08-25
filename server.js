@@ -91,42 +91,63 @@ app.get('/api/album', (req, res) => {
     }
 });
 
-// RUTA PARA DESCARGAR EL ÁLBUM COMPLETO EN .ZIP
+// RUTA PARA DESCARGAR EL ÁLBUM COMPLETO EN .ZIP (CORREGIDA)
 app.get('/api/download-album', (req, res) => {
-    try {
-        let album = [];
-        if (fs.existsSync(dbFile)) {
+    let album = [];
+    if (fs.existsSync(dbFile)) {
+        try {
             const raw = fs.readFileSync(dbFile, 'utf8');
             album = raw ? JSON.parse(raw) : [];
+        } catch (e) {
+            album = [];
         }
+    }
 
-        const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver('zip', { zlib: { level: 9 } });
 
-        res.attachment('Album-Recuerdos-LightSound.zip');
-        archive.pipe(res);
-
-        // 1. Agregar la carpeta de fotos y audios al zip
-        if (fs.existsSync(uploadDir)) {
-            archive.directory(uploadDir, 'archivos_multimedia');
+    // Manejo de errores en el stream
+    archive.on('error', (err) => {
+        console.error('Error en archiver:', err);
+        if (!res.headersSent) {
+            res.status(500).send('Error al procesar el archivo ZIP');
         }
+    });
 
-        // 2. Generar un archivo de texto con todas las dedicatorias organizadas
-        let textReport = "=== LIBRO DE RECUERDOS Y DEDICATORIAS ===\n\n";
+    // Configurar cabeceras de descarga
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', 'attachment; filename=Album-Recuerdos-LightSound.zip');
+
+    archive.pipe(res);
+
+    // 1. Agregar archivos existentes en la carpeta uploads
+    if (fs.existsSync(uploadDir)) {
+        const files = fs.readdirSync(uploadDir);
+        files.forEach(file => {
+            const filePath = path.join(uploadDir, file);
+            if (fs.lstatSync(filePath).isFile()) {
+                archive.file(filePath, { name: `archivos_multimedia/${file}` });
+            }
+        });
+    }
+
+    // 2. Generar el reporte de dedicatorias
+    let textReport = "=== LIBRO DE RECUERDOS Y DEDICATORIAS ===\n\n";
+    if (album.length === 0) {
+        textReport += "No hay dedicatorias registradas aún.\n";
+    } else {
         album.forEach((item, index) => {
             textReport += `[#${index + 1}] De: ${item.author} (${item.timestamp})\n`;
             if (item.message) textReport += `Mensaje: "${item.message}"\n`;
-            if (item.photoUrl) textReport += `Foto adjunta: ${item.photoUrl}\n`;
-            if (item.audioUrl) textReport += `Audio adjunto: ${item.audioUrl}\n`;
+            if (item.photoUrl) textReport += `Foto: ${path.basename(item.photoUrl)}\n`;
+            if (item.audioUrl) textReport += `Audio: ${path.basename(item.audioUrl)}\n`;
             textReport += "--------------------------------------------------\n\n";
         });
-
-        archive.append(textReport, { name: 'Dedicatorias_y_Mensajes.txt' });
-
-        archive.finalize();
-    } catch (error) {
-        console.error('Error generando zip:', error);
-        res.status(500).send('Error al generar el archivo zip');
     }
+
+    archive.append(textReport, { name: 'Dedicatorias_y_Mensajes.txt' });
+
+    // Finalizar el empaquetado
+    archive.finalize();
 });
 
 app.get('/', (req, res) => {
