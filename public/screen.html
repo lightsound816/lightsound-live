@@ -299,6 +299,114 @@
             0% { transform: translateY(0) scale(0.7); opacity: 1; }
             100% { transform: translateY(-115vh) scale(1.6); opacity: 0; }
         }
+
+        /* ================= PANTALLA SECRETA DE CIERRE ================= */
+        .closing-screen {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, #1a0005 0%, #050002 70%, #000 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .closing-active {
+            display: flex !important;
+            animation: closingZoom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes closingZoom {
+            0% { opacity: 0; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .closing-card {
+            background: rgba(15, 15, 15, 0.85);
+            border: 2px solid #ff0000;
+            border-radius: 24px;
+            padding: 40px 60px;
+            box-shadow: 0 0 80px rgba(255, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            backdrop-filter: blur(10px);
+        }
+
+        .closing-logo {
+            height: 75px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7));
+        }
+
+        .closing-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #fe0000;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(255, 64, 64, 0.6);
+        }
+
+        .closing-message {
+            font-size: 1.4rem;
+            line-height: 1.5;
+            color: #f1f1f1;
+            margin-bottom: 25px;
+            max-width: 750px;
+        }
+
+        .closing-message strong {
+            color: #ff0000;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+        }
+
+        .qr-instagram-box {
+            background: #000;
+            border: 3px solid #ff0000;
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.4);
+        }
+
+        .ig-handle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ff0000;
+        }
+
+        /* Animaciones Globales */
+        @keyframes immersivePopIn {
+            0% { opacity: 0; transform: scale(0.72) translateZ(-150px) rotateX(8deg); filter: blur(12px) brightness(1.8); }
+            70% { opacity: 1; transform: scale(1.02) translateZ(20px) rotateX(-1deg); filter: blur(0px) brightness(1.1); }
+            100% { opacity: 1; transform: scale(1) translateZ(0) rotateX(0deg); filter: blur(0px) brightness(1); }
+        }
+
+        @keyframes elementFloat {
+            0% { opacity: 0; transform: translateY(25px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .emoji-blast {
+            position: absolute; bottom: -50px; font-size: 4rem; pointer-events: none; z-index: 40;
+            animation: riseUp 2.8s ease-in forwards;
+        }
+        @keyframes riseUp {
+            0% { transform: translateY(0) scale(0.7); opacity: 1; }
+            100% { transform: translateY(-115vh) scale(1.6); opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -323,7 +431,7 @@
             <div id="qrUpload"></div>
         </div>
         <div class="panel-info">
-            Escanea y sube captura los mejores momentos
+            Escanea y sube los mejores momentos de la fiesta
             <strong>¡EN VIVO!</strong>
         </div>
     </div>
@@ -345,6 +453,24 @@
         <div class="media-card" id="cardBox">
             <img id="mainImg" src="https://placehold.co/1200x800/111/fff?text=Esperando+recuerdos..." alt="Proyección">
             <div class="author-badge" id="mainAuthor">¡Escanea el QR para participar!</div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CIERRE SECRETA -->
+    <div class="closing-screen" id="closingScreen">
+        <div class="closing-card">
+            <img src="/logo_lightsound.jpg" alt="Light Sound" class="closing-logo">
+            <h1 class="closing-title">¡Gracias por Acompañarnos!</h1>
+            <p class="closing-message">
+                Todo el contenido, fotos, videos y notas de voz del evento estarán publicados en 
+                <strong>LightSound</strong>. ¡Estén muy al pendientes!
+            </p>
+            <div class="qr-instagram-box">
+                <div id="qrInstagram"></div>
+                <div class="ig-handle">
+                    <i class="fab fa-instagram"></i> @lightsoundprofessionalteam
+                </div>
+            </div>
         </div>
     </div>
 
@@ -371,6 +497,12 @@
             correctLevel: QRCode.CorrectLevel.M
         });
 
+        // 3. QR de Instagram para pantalla final
+        new QRCode(document.getElementById("qrInstagram"), {
+            text: "https://www.instagram.com/lightsoundprofessionalteam/?hl=es",
+            width: 170, height: 170, colorDark: "#ffffff", colorLight: "#000000"
+        });
+
         const queue = [];
         let isPresenting = false;
         let isLoopingAlone = false;
@@ -382,6 +514,19 @@
             void flash.offsetWidth;
             flash.classList.add('flash-active');
         }
+
+        // ================= ATAJO SECRETO (Ctrl + Shift + F) =================
+        window.addEventListener('keydown', (e) => {
+            // Atajo para ACTIVAR: Ctrl + Shift + F (o Cmd + Shift + F)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+                e.preventDefault();
+                toggleClosingScreen(true);
+            }
+            // Atajo para DESACTIVAR y volver: Tecla Escape
+            if (e.key === 'Escape' && isClosingMode) {
+                toggleClosingScreen(false);
+            }
+        });
 
         socket.on('new_content', (data) => {
             queue.push(data);
