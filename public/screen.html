@@ -25,7 +25,7 @@
         .stage-flash {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle, rgba(255, 0, 0, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 0, 60, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
             pointer-events: none;
             z-index: 50;
             opacity: 0;
@@ -104,13 +104,12 @@
             display: none;
         }
 
-        /* ================= PANELES LATERALES UX/UI ================= */
+        /* Paneles Laterales de Códigos QR */
         .side-panel {
             position: absolute;
             top: 52%;
             transform: translateY(-50%);
-            width: 273
-            px;
+            width: 273px;
             background: rgba(12, 12, 12, 0.94);
             border-radius: 24px;
             padding: 20px 18px;
@@ -120,21 +119,18 @@
             text-align: center;
             z-index: 30;
             backdrop-filter: blur(12px);
-            transition: all 0.3s ease;
         }
 
-        /* Lateral Izquierdo: Subida / Participación */
         .panel-upload {
             left: 30px;
             border: 2px solid rgba(255, 0, 0, 0.85);
-            box-shadow: 0 0 35px rgba(255, 0, 0, 0.3), inset 0 0 15px rgba(255, 0, 0, 0.1);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.3);
         }
 
-        /* Lateral Derecho: Instagram Light Sound */
         .panel-instagram {
             right: 30px;
             border: 2px solid rgba(255, 0, 0, 0.85);
-            box-shadow: 0 0 35px rgba(255, 0, 0, 0.3), inset 0 0 15px rgba(255, 0, 128, 0.1);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.3);
         }
 
         .side-panel .panel-badge {
@@ -152,12 +148,12 @@
 
         .panel-upload .panel-badge {
             background: rgba(255, 0, 0, 0.15);
-            color: #ff3838;
+            color: #ff0000;
             border: 1px solid rgba(255, 0, 0, 0.4);
         }
 
         .panel-instagram .panel-badge {
-            background: rgba(255, 0, 0, 0.15);
+            background: rgba(255, 0, 128, 0.15);
             color: #ff0000;
             border: 1px solid rgba(255, 0, 0, 0.4);
         }
@@ -196,12 +192,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 95px 280px 45px 280px; /* Área protegida para no tapar los QR laterales */
+            padding: 95px 280px 45px 280px;
         }
 
         .media-card {
             position: relative;
-            max-width: 55vw;
+            max-width: 60vw;
             max-height: calc(100vh - 130px);
             display: flex;
             flex-direction: column;
@@ -216,7 +212,7 @@
             object-fit: contain;
             border-radius: 14px;
             border: 3px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 60px rgba(255, 0, 0, 0.5), 0 0 120px rgba(255, 0, 50, 0.2);
+            box-shadow: 0 0 60px rgba(255, 0, 50, 0.5), 0 0 120px rgba(255, 0, 50, 0.2);
             background: #111;
         }
 
@@ -227,7 +223,7 @@
             border-radius: 24px;
             max-width: 58vw;
             text-align: center;
-            box-shadow: 0 0 60px rgba(255, 0, 50, 0.45);
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.45);
             animation: immersivePopIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
@@ -279,6 +275,93 @@
             animation: elementFloat 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
         }
 
+        /* ================= VENTANA SECRETA DE CIERRE (Ctrl+Shift+F) ================= */
+        .closing-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at center, #1a0005 0%, #050002 70%, #000 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .closing-active {
+            display: flex !important;
+            animation: closingZoom 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes closingZoom {
+            0% { opacity: 0; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .closing-card {
+            background: rgba(15, 15, 15, 0.9);
+            border: 2px solid #ff0000;
+            border-radius: 24px;
+            padding: 40px 60px;
+            box-shadow: 0 0 80px rgba(255, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 850px;
+            backdrop-filter: blur(12px);
+        }
+
+        .closing-logo {
+            height: 70px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7));
+        }
+
+        .closing-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.8rem;
+            color: #ff0000;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(255, 64, 64, 0.6);
+        }
+
+        .closing-message {
+            font-size: 1.35rem;
+            line-height: 1.5;
+            color: #ffffff;
+            margin-bottom: 25px;
+            max-width: 700px;
+        }
+
+        .closing-message strong {
+            color: #ff0000;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+        }
+
+        .qr-instagram-box {
+            background: #000;
+            border: 3px solid #ff0000;
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.4);
+        }
+
+        .ig-handle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ff0000;
+        }
+
         /* Animaciones */
         @keyframes immersivePopIn {
             0% { opacity: 0; transform: scale(0.72) translateZ(-150px) rotateX(8deg); filter: blur(12px) brightness(1.8); }
@@ -299,7 +382,6 @@
             0% { transform: translateY(0) scale(0.7); opacity: 1; }
             100% { transform: translateY(-115vh) scale(1.6); opacity: 0; }
         }
-
     </style>
 </head>
 <body>
@@ -317,14 +399,14 @@
         </div>
     </div>
 
-    <!-- Panel Lateral Izquierdo: Participación (QR 180px) -->
+    <!-- Panel Lateral Izquierdo: Subida (QR 180px) -->
     <div class="side-panel panel-upload">
         <div class="panel-badge"><i class="fas fa-camera"></i> Participa</div>
         <div class="qr-card">
             <div id="qrUpload"></div>
         </div>
         <div class="panel-info">
-            Escanea y captura los mejores momentos<br>de la fiesta.
+            Escanea y Captura los mejores<br>momentos de la esta noche.
             <strong>¡EN VIVO!</strong>
         </div>
     </div>
@@ -349,10 +431,28 @@
         </div>
     </div>
 
+    <!-- VENTANA SECRETA DE CIERRE -->
+    <div class="closing-screen" id="closingScreen">
+        <div class="closing-card">
+            <img src="/logo_lightsound.jpg" alt="Light Sound" class="closing-logo">
+            <h1 class="closing-title">¡Gracias por Acompañarnos!</h1>
+            <p class="closing-message">
+                Todo el contenido, fotos, videos y notas de voz de esta noche estarán disponibles en 
+                <strong>Light Sound</strong>. ¡Estén muy al pendientes!
+            </p>
+            <div class="qr-instagram-box">
+                <div id="qrClosingInstagram"></div>
+                <div class="ig-handle">
+                    <i class="fab fa-instagram"></i> @lightsoundprofessionalteam
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const socket = io();
 
-        // 1. QR de Subida (180x180 px con corrección de error alta)
+        // 1. QR Lateral Izquierdo (Upload)
         new QRCode(document.getElementById("qrUpload"), {
             text: `${window.location.origin}/upload.html`,
             width: 180,
@@ -362,7 +462,7 @@
             correctLevel: QRCode.CorrectLevel.M
         });
 
-        // 2. QR de Instagram (180x180 px con corrección de error alta)
+        // 2. QR Lateral Derecho (Instagram)
         new QRCode(document.getElementById("qrInstagram"), {
             text: "https://www.instagram.com/lightsoundprofessionalteam/?hl=es",
             width: 180,
@@ -372,9 +472,20 @@
             correctLevel: QRCode.CorrectLevel.M
         });
 
+        // 3. QR en la Pantalla Secreta de Cierre
+        new QRCode(document.getElementById("qrClosingInstagram"), {
+            text: "https://www.instagram.com/lightsoundprofessionalteam/?hl=es",
+            width: 180,
+            height: 180,
+            colorDark: "#ffffff",
+            colorLight: "#000000",
+            correctLevel: QRCode.CorrectLevel.M
+        });
+
         const queue = [];
         let isPresenting = false;
         let isLoopingAlone = false;
+        let isClosingMode = false;
         let countdownInterval = null;
 
         function triggerFlashEffect() {
@@ -384,16 +495,44 @@
             flash.classList.add('flash-active');
         }
 
+        // ================= ATAJO SECRETO (Ctrl + Shift + F) =================
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+                e.preventDefault();
+                toggleClosingScreen(true);
+            }
+            if (e.key === 'Escape' && isClosingMode) {
+                toggleClosingScreen(false);
+            }
+        });
+
+        function toggleClosingScreen(enable) {
+            isClosingMode = enable;
+            const closingEl = document.getElementById('closingScreen');
+            triggerFlashEffect();
+
+            if (enable) {
+                closingEl.classList.add('closing-active');
+                if (countdownInterval) clearInterval(countdownInterval);
+                document.getElementById('timerCircle').style.display = 'none';
+            } else {
+                closingEl.classList.remove('closing-active');
+                processNextInQueue();
+            }
+        }
+
         socket.on('new_content', (data) => {
             queue.push(data);
             updateQueueStatus();
             
-            if (isLoopingAlone) {
-                isLoopingAlone = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                processNextInQueue();
-            } else if (!isPresenting) {
-                processNextInQueue();
+            if (!isClosingMode) {
+                if (isLoopingAlone) {
+                    isLoopingAlone = false;
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    processNextInQueue();
+                } else if (!isPresenting) {
+                    processNextInQueue();
+                }
             }
         });
 
@@ -408,6 +547,8 @@
         }
 
         function processNextInQueue() {
+            if (isClosingMode) return;
+
             if (queue.length === 0) {
                 isPresenting = false;
                 isLoopingAlone = false;
