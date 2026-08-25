@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyección en Vivo - LightSound</title>
+    <title>Proyección en Vivo - Light Sound</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -20,13 +21,13 @@
             perspective: 1200px;
         }
 
-        /* Destello inmersivo al cambiar de recuerdo */
+        /* Destello luminoso al cambiar contenido o activar cierre */
         .stage-flash {
             position: absolute;
             inset: 0;
             background: radial-gradient(circle, rgba(255, 0, 60, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
             pointer-events: none;
-            z-index: 15;
+            z-index: 50;
             opacity: 0;
             mix-blend-mode: screen;
         }
@@ -44,7 +45,7 @@
         /* Barra Superior */
         .top-bar {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100px;
+            top: 0; left: 0; width: 100%; height: 90px;
             padding: 0 40px;
             display: flex; align-items: center; justify-content: flex-start;
             z-index: 20;
@@ -52,10 +53,10 @@
         }
 
         .event-title {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
-            color: #ff0000;
-            text-shadow: 0 2px 10px rgba(255, 64, 64, 0.5);
+            color: #ff4081;
+            text-shadow: 0 2px 10px rgba(255, 64, 129, 0.5);
         }
 
         .brand-logo-center {
@@ -103,7 +104,7 @@
             display: none;
         }
 
-        /* Escenario */
+        /* Escenario de Proyección */
         .stage {
             width: 100vw;
             height: 100vh;
@@ -113,7 +114,6 @@
             padding: 95px 40px 45px 40px;
         }
 
-        /* Transición 3D / Zoom Inmersivo */
         .media-card {
             position: relative;
             max-width: 90vw;
@@ -151,10 +151,8 @@
             font-style: italic;
             line-height: 1.4;
             color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
 
-        /* Elementos escalonados con Fade-Slide */
         .author-badge {
             margin-top: 12px;
             background: rgba(0, 0, 0, 0.9);
@@ -196,36 +194,7 @@
             animation: elementFloat 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
         }
 
-        /* Animaciones */
-        @keyframes immersivePopIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.72) translateZ(-150px) rotateX(8deg);
-                filter: blur(12px) brightness(1.8);
-            }
-            70% {
-                opacity: 1;
-                transform: scale(1.02) translateZ(20px) rotateX(-1deg);
-                filter: blur(0px) brightness(1.1);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateZ(0) rotateX(0deg);
-                filter: blur(0px) brightness(1);
-            }
-        }
-
-        @keyframes elementFloat {
-            0% {
-                opacity: 0;
-                transform: translateY(25px) scale(0.9);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
+        /* QR Normal de Participación */
         .qr-overlay {
             position: absolute;
             bottom: 25px;
@@ -244,6 +213,105 @@
         .qr-text strong { display: block; font-size: 0.9rem; color: #ff0000; }
         .qr-text span { font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
 
+        /* ================= PANTALLA SECRETA DE CIERRE ================= */
+        .closing-screen {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, #1a0005 0%, #050002 70%, #000 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .closing-active {
+            display: flex !important;
+            animation: closingZoom 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes closingZoom {
+            0% { opacity: 0; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .closing-card {
+            background: rgba(15, 15, 15, 0.85);
+            border: 2px solid #ff0000;
+            border-radius: 24px;
+            padding: 40px 60px;
+            box-shadow: 0 0 80px rgba(255, 0, 50, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            backdrop-filter: blur(10px);
+        }
+
+        .closing-logo {
+            height: 75px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px rgba(255, 0, 0, 0.7));
+        }
+
+        .closing-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #ff4081;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px rgba(255, 64, 129, 0.6);
+        }
+
+        .closing-message {
+            font-size: 1.4rem;
+            line-height: 1.5;
+            color: #f1f1f1;
+            margin-bottom: 25px;
+            max-width: 750px;
+        }
+
+        .closing-message strong {
+            color: #ff0000;
+            font-weight: 900;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.6);
+        }
+
+        .qr-instagram-box {
+            background: #000;
+            border: 3px solid #ff0000;
+            border-radius: 18px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.4);
+        }
+
+        .ig-handle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ff4081;
+        }
+
+        /* Animaciones Globales */
+        @keyframes immersivePopIn {
+            0% { opacity: 0; transform: scale(0.72) translateZ(-150px) rotateX(8deg); filter: blur(12px) brightness(1.8); }
+            70% { opacity: 1; transform: scale(1.02) translateZ(20px) rotateX(-1deg); filter: blur(0px) brightness(1.1); }
+            100% { opacity: 1; transform: scale(1) translateZ(0) rotateX(0deg); filter: blur(0px) brightness(1); }
+        }
+
+        @keyframes elementFloat {
+            0% { opacity: 0; transform: translateY(25px) scale(0.9); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .emoji-blast {
             position: absolute; bottom: -50px; font-size: 4rem; pointer-events: none; z-index: 40;
             animation: riseUp 2.8s ease-in forwards;
@@ -256,12 +324,11 @@
 </head>
 <body>
 
-    <!-- Capa de Destello Inmersivo -->
     <div class="stage-flash" id="flashFx"></div>
 
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center">
+        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center">
         
         <div class="queue-status-panel">
             <div class="queue-badge" id="queueBadge">En espera: 0</div>
@@ -276,44 +343,101 @@
         </div>
     </div>
 
-    <div class="qr-overlay">
+    <!-- QR de Participación Normal -->
+    <div class="qr-overlay" id="normalQrBox">
         <div id="qrcode"></div>
         <div class="qr-text">
-            <span>Fotos • Videos • Audios • Mensajes</span>
+            <span>Fotos • Videos • Audios</span>
             <strong>ESCANEA AQUÍ</strong>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE CIERRE SECRETA -->
+    <div class="closing-screen" id="closingScreen">
+        <div class="closing-card">
+            <img src="/logo_lightsound.png" alt="Light Sound" class="closing-logo">
+            <h1 class="closing-title">¡Gracias por Acompañarnos! ✨</h1>
+            <p class="closing-message">
+                Todo el contenido, fotos, videos y notas de voz del evento estarán publicados en 
+                <strong>Light Sound</strong>. ¡Estén muy al pendientes!
+            </p>
+            <div class="qr-instagram-box">
+                <div id="qrInstagram"></div>
+                <div class="ig-handle">
+                    <i class="fab fa-instagram"></i> @lightsoundprofessionalteam
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const socket = io();
 
+        // 1. QR de subida en vivo
         new QRCode(document.getElementById("qrcode"), {
             text: `${window.location.origin}/upload.html`,
             width: 80, height: 80, colorDark: "#ffffff", colorLight: "#111111"
         });
 
+        // 2. QR de Instagram para pantalla final
+        new QRCode(document.getElementById("qrInstagram"), {
+            text: "https://www.instagram.com/lightsoundprofessionalteam/?hl=es",
+            width: 170, height: 170, colorDark: "#ffffff", colorLight: "#000000"
+        });
+
         const queue = [];
         let isPresenting = false;
         let isLoopingAlone = false;
+        let isClosingMode = false;
         let countdownInterval = null;
 
         function triggerFlashEffect() {
             const flash = document.getElementById('flashFx');
             flash.classList.remove('flash-active');
-            void flash.offsetWidth; // Forzar reflow para reiniciar animación
+            void flash.offsetWidth;
             flash.classList.add('flash-active');
+        }
+
+        // ================= ATAJO SECRETO (Ctrl + Shift + F) =================
+        window.addEventListener('keydown', (e) => {
+            // Atajo para ACTIVAR: Ctrl + Shift + F (o Cmd + Shift + F)
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
+                e.preventDefault();
+                toggleClosingScreen(true);
+            }
+            // Atajo para DESACTIVAR y volver: Tecla Escape
+            if (e.key === 'Escape' && isClosingMode) {
+                toggleClosingScreen(false);
+            }
+        });
+
+        function toggleClosingScreen(enable) {
+            isClosingMode = enable;
+            const closingEl = document.getElementById('closingScreen');
+            triggerFlashEffect();
+
+            if (enable) {
+                closingEl.classList.add('closing-active');
+                if (countdownInterval) clearInterval(countdownInterval);
+                document.getElementById('timerCircle').style.display = 'none';
+            } else {
+                closingEl.classList.remove('closing-active');
+                processNextInQueue();
+            }
         }
 
         socket.on('new_content', (data) => {
             queue.push(data);
             updateQueueStatus();
             
-            if (isLoopingAlone) {
-                isLoopingAlone = false;
-                if (countdownInterval) clearInterval(countdownInterval);
-                processNextInQueue();
-            } else if (!isPresenting) {
-                processNextInQueue();
+            if (!isClosingMode) {
+                if (isLoopingAlone) {
+                    isLoopingAlone = false;
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    processNextInQueue();
+                } else if (!isPresenting) {
+                    processNextInQueue();
+                }
             }
         });
 
@@ -328,6 +452,8 @@
         }
 
         function processNextInQueue() {
+            if (isClosingMode) return;
+
             if (queue.length === 0) {
                 isPresenting = false;
                 isLoopingAlone = false;
@@ -339,7 +465,7 @@
             isLoopingAlone = false;
             const data = queue.shift();
             updateQueueStatus();
-            triggerFlashEffect(); // Disparar destello luminoso
+            triggerFlashEffect();
 
             const timerEl = document.getElementById('timerCircle');
             timerEl.style.display = 'flex';
