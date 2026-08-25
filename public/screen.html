@@ -329,7 +329,7 @@
             border: 2px solid #ff0000;
             border-radius: 24px;
             padding: 40px 60px;
-            box-shadow: 0 0 80px rgba(255, 0, 0, 0.5);
+            box-shadow: 0 0 80px rgba(255, 0, 50, 0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -456,24 +456,6 @@
         </div>
     </div>
 
-    <!-- PANTALLA DE CIERRE SECRETA -->
-    <div class="closing-screen" id="closingScreen">
-        <div class="closing-card">
-            <img src="/logo_lightsound.jpg" alt="Light Sound" class="closing-logo">
-            <h1 class="closing-title">¡Gracias por Acompañarnos!</h1>
-            <p class="closing-message">
-                Todo el contenido, fotos, videos y notas de voz del evento estarán publicados en 
-                <strong>LightSound</strong>. ¡Estén muy al pendientes!
-            </p>
-            <div class="qr-instagram-box">
-                <div id="qrInstagram"></div>
-                <div class="ig-handle">
-                    <i class="fab fa-instagram"></i> @lightsoundprofessionalteam
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script>
         const socket = io();
 
@@ -497,12 +479,6 @@
             correctLevel: QRCode.CorrectLevel.M
         });
 
-        // 3. QR de Instagram para pantalla final
-        new QRCode(document.getElementById("qrInstagram"), {
-            text: "https://www.instagram.com/lightsoundprofessionalteam/?hl=es",
-            width: 170, height: 170, colorDark: "#ffffff", colorLight: "#000000"
-        });
-
         const queue = [];
         let isPresenting = false;
         let isLoopingAlone = false;
@@ -514,19 +490,6 @@
             void flash.offsetWidth;
             flash.classList.add('flash-active');
         }
-
-        // ================= ATAJO SECRETO (Ctrl + Shift + F) =================
-        window.addEventListener('keydown', (e) => {
-            // Atajo para ACTIVAR: Ctrl + Shift + F (o Cmd + Shift + F)
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'F' || e.key === 'f')) {
-                e.preventDefault();
-                toggleClosingScreen(true);
-            }
-            // Atajo para DESACTIVAR y volver: Tecla Escape
-            if (e.key === 'Escape' && isClosingMode) {
-                toggleClosingScreen(false);
-            }
-        });
 
         socket.on('new_content', (data) => {
             queue.push(data);
