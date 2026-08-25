@@ -53,9 +53,9 @@
         }
 
         .event-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 2.2rem;
-            color: #ff4081;
+            color: #ff0000;
             text-shadow: 0 2px 10px rgba(255, 64, 129, 0.5);
         }
 
@@ -197,8 +197,8 @@
         /* QR Normal de Participación */
         .qr-overlay {
             position: absolute;
-            bottom: 25px;
-            left: 25px;
+            bottom: 50px;
+            left: 50px;
             background: rgba(17, 17, 17, 0.9);
             border: 2px solid #ff0000;
             border-radius: 14px;
@@ -260,9 +260,9 @@
         .closing-title {
             font-family: 'Playfair Display', serif;
             font-size: 3rem;
-            color: #ff4081;
+            color: #ff0000;
             margin-bottom: 12px;
-            text-shadow: 0 0 20px rgba(255, 64, 129, 0.6);
+            text-shadow: 0 0 20px rgba(255, 64, 64, 0.6);
         }
 
         .closing-message {
@@ -297,7 +297,7 @@
             gap: 8px;
             font-size: 1.1rem;
             font-weight: 700;
-            color: #ff4081;
+            color: #ff0000;
         }
 
         /* Animaciones Globales */
@@ -328,7 +328,7 @@
 
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center">
+        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center">
         
         <div class="queue-status-panel">
             <div class="queue-badge" id="queueBadge">En espera: 0</div>
@@ -347,7 +347,7 @@
     <div class="qr-overlay" id="normalQrBox">
         <div id="qrcode"></div>
         <div class="qr-text">
-            <span>Fotos • Videos • Audios</span>
+            <span>Fotos • Videos • Audios • Mensajes</span>
             <strong>ESCANEA AQUÍ</strong>
         </div>
     </div>
@@ -355,11 +355,11 @@
     <!-- PANTALLA DE CIERRE SECRETA -->
     <div class="closing-screen" id="closingScreen">
         <div class="closing-card">
-            <img src="/logo_lightsound.png" alt="Light Sound" class="closing-logo">
-            <h1 class="closing-title">¡Gracias por Acompañarnos! ✨</h1>
+            <img src="/logo_lightsound.jpg" alt="Light Sound" class="closing-logo">
+            <h1 class="closing-title">¡Gracias por Acompañarnos!</h1>
             <p class="closing-message">
                 Todo el contenido, fotos, videos y notas de voz del evento estarán publicados en 
-                <strong>Light Sound</strong>. ¡Estén muy al pendientes!
+                <strong>LightSound</strong>. ¡Estén muy al pendientes!
             </p>
             <div class="qr-instagram-box">
                 <div id="qrInstagram"></div>
