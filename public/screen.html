@@ -29,10 +29,10 @@
         }
 
         .event-title {
-            font-family: 'Poppins';
+            font-family: 'Playfair Display', serif;
             font-size: 2.2rem;
-            color: #ff0000;
-            text-shadow: 0 2px 10px rgba(255, 28, 36, 0.5);
+            color: #ff4081;
+            text-shadow: 0 2px 10px rgba(255, 64, 129, 0.5);
         }
 
         .brand-logo-center {
@@ -44,7 +44,6 @@
             filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.45));
         }
 
-        /* Contador y Fila Virtual (Esquina Superior Derecha) */
         .queue-status-panel {
             position: absolute;
             top: 20px;
@@ -202,9 +201,8 @@
         <div class="event-title">EVENTO</div>
         <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
         
-        <!-- Indicador de Fila y Temporizador -->
         <div class="queue-status-panel">
-            <div class="queue-badge" id="queueBadge" style="display:none;">En cola: 0</div>
+            <div class="queue-badge" id="queueBadge" style="display:none;">En espera: 0</div>
             <div class="timer-circle" id="timerCircle" style="display:none;">30</div>
         </div>
     </div>
@@ -232,7 +230,6 @@
             width: 80, height: 80, colorDark: "#ffffff", colorLight: "#111111"
         });
 
-        // Cola Virtual Inteligente
         const queue = [];
         let isPresenting = false;
         let countdownInterval = null;
@@ -266,17 +263,35 @@
             const data = queue.shift();
             updateQueueStatus();
 
-            // Duración: 30s para fotos/videos, 15s para mensajes/audios
-            const isMedia = Boolean(data.photoUrl || data.videoUrl);
-            let timeLeft = isMedia ? 30 : 15;
-
             const timerEl = document.getElementById('timerCircle');
             timerEl.style.display = 'flex';
-            timerEl.textContent = timeLeft;
-
-            renderSlide(data);
 
             if (countdownInterval) clearInterval(countdownInterval);
+
+            // Caso 1: Es Video (Duración dinámica hasta un máximo de 30s)
+            if (data.videoUrl) {
+                renderVideoSlide(data, (videoDuration) => {
+                    // Si el video dura menos de 30s, usa sus segundos exactos; si dura más, se limita a 30s
+                    let duration = Math.min(Math.ceil(videoDuration) || 30, 30);
+                    startCountdown(duration);
+                });
+            } 
+            // Caso 2: Es Foto (30 segundos fijos)
+            else if (data.photoUrl) {
+                renderPhotoSlide(data);
+                startCountdown(30);
+            } 
+            // Caso 3: Solo Texto / Audio (15 segundos fijos)
+            else {
+                renderTextSlide(data);
+                startCountdown(15);
+            }
+        }
+
+        function startCountdown(seconds) {
+            let timeLeft = seconds;
+            const timerEl = document.getElementById('timerCircle');
+            timerEl.textContent = timeLeft;
 
             countdownInterval = setInterval(() => {
                 timeLeft--;
@@ -288,69 +303,96 @@
             }, 1000);
         }
 
-        function renderSlide(data) {
+        function renderVideoSlide(data, onReadyDuration) {
             const stage = document.getElementById('stage');
             stage.innerHTML = '';
 
             const card = document.createElement('div');
+            card.className = 'media-card';
 
-            // 1. Caso Video
-            if (data.videoUrl) {
-                card.className = 'media-card';
-                const video = document.createElement('video');
-                video.src = data.videoUrl;
-                video.autoplay = true;
-                video.muted = false; // Permite reproducir con audio en la proyección
-                video.playsInline = true;
-                card.appendChild(video);
+            const video = document.createElement('video');
+            video.src = data.videoUrl;
+            video.autoplay = true;
+            video.playsInline = true;
 
-                const author = document.createElement('div');
-                author.className = 'author-badge';
-                author.textContent = data.author;
-                card.appendChild(author);
+            // Leer metadatos del video para obtener duración exacta
+            video.onloadedmetadata = () => {
+                onReadyDuration(video.duration);
+            };
+
+            // En caso de que tarde en cargar metadatos, fallback a 30s
+            setTimeout(() => {
+                if (!video.duration) onReadyDuration(30);
+            }, 1000);
+
+            card.appendChild(video);
+
+            const author = document.createElement('div');
+            author.className = 'author-badge';
+            author.textContent = data.author;
+            card.appendChild(author);
+
+            appendAudioBadge(data, card);
+            stage.appendChild(card);
+        }
+
+        function renderPhotoSlide(data) {
+            const stage = document.getElementById('stage');
+            stage.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = 'media-card';
+
+            const img = document.createElement('img');
+            img.src = data.photoUrl;
+            card.appendChild(img);
+
+            const author = document.createElement('div');
+            author.className = 'author-badge';
+            author.textContent = data.author;
+            card.appendChild(author);
+
+            if (data.message) {
+                const msg = document.createElement('div');
+                msg.className = 'message-sub';
+                msg.textContent = `“${data.message}”`;
+                card.appendChild(msg);
             }
-            // 2. Caso Foto
-            else if (data.photoUrl) {
-                card.className = 'media-card';
-                const img = document.createElement('img');
-                img.src = data.photoUrl;
-                card.appendChild(img);
 
-                const author = document.createElement('div');
-                author.className = 'author-badge';
-                author.textContent = data.author;
-                card.appendChild(author);
+            appendAudioBadge(data, card);
+            stage.appendChild(card);
+        }
 
-                if (data.message) {
-                    const msg = document.createElement('div');
-                    msg.className = 'message-sub';
-                    msg.textContent = `“${data.message}”`;
-                    card.appendChild(msg);
-                }
-            }
-            // 3. Caso Solo Texto / Audio
-            else {
-                card.className = 'text-only-card';
-                if (data.message) {
-                    const p = document.createElement('p');
-                    p.textContent = `“${data.message}”`;
-                    card.appendChild(p);
-                }
-                const author = document.createElement('div');
-                author.className = 'author-badge';
-                author.style.marginTop = '18px';
-                author.textContent = data.author;
-                card.appendChild(author);
+        function renderTextSlide(data) {
+            const stage = document.getElementById('stage');
+            stage.innerHTML = '';
+
+            const card = document.createElement('div');
+            card.className = 'text-only-card';
+
+            if (data.message) {
+                const p = document.createElement('p');
+                p.textContent = `“${data.message}”`;
+                card.appendChild(p);
             }
 
+            const author = document.createElement('div');
+            author.className = 'author-badge';
+            author.style.marginTop = '18px';
+            author.textContent = data.author;
+            card.appendChild(author);
+
+            appendAudioBadge(data, card);
+            stage.appendChild(card);
+        }
+
+        function appendAudioBadge(data, container) {
             if (data.audioUrl) {
                 const audioBadge = document.createElement('div');
                 audioBadge.className = 'audio-notice-badge';
                 audioBadge.innerHTML = '🎙️ ¡Dejó un mensaje de voz! Escúchalo en el álbum digital';
-                card.appendChild(audioBadge);
+                container.appendChild(audioBadge);
             }
-
-            stage.appendChild(card);
         }
 
         socket.on('show_reaction', (emoji) => {
