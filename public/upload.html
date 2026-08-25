@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Light Sound - Enviar Recuerdo</title>
+    <title>LightSound - Enviar Recuerdo</title>
     <script src="/socket.io/socket.io.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -13,7 +13,6 @@
             --control-bg: #141414;
             --brand-red: #ff0000;
             --text-main: #ffffff;
-            --valentina-title: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,25 +29,8 @@
             min-height: 100vh;
         }
 
-        header {
-            margin-bottom: 20px;
-            width: 100%;
-        }
-
-        header h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.9rem;
-            color: var(--valentina-title);
-            margin-bottom: 4px;
-        }
-
-        header p {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            color: var(--brand-red);
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
+        header h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; margin-bottom: 4px; }
+        header p { font-size: 0.75rem; text-transform: uppercase; color: var(--brand-red); font-weight: 700; letter-spacing: 1px; margin-bottom: 18px; }
 
         .upload-card {
             background-color: var(--control-bg);
@@ -58,7 +40,6 @@
             padding: 22px;
             border: 1px solid #222;
             border-bottom: 4px solid var(--brand-red);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
 
         input[type="text"], textarea {
@@ -68,36 +49,35 @@
             border: 1px solid #333;
             border-radius: 8px;
             color: #fff;
-            font-size: 0.95rem;
             font-family: inherit;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             outline: none;
         }
+        textarea { resize: none; height: 70px; }
 
-        textarea {
-            resize: none;
-            height: 75px;
+        .media-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
-        input[type="text"]:focus, textarea:focus {
-            border-color: #555;
-        }
-
-        .btn-file {
-            display: block;
+        .btn-media {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
             background-color: #222;
             color: #eee;
             border: 1px dashed #555;
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
-            margin-bottom: 15px;
-            transition: all 0.2s;
         }
 
-        .btn-file.has-file {
+        .btn-media.has-file {
             background-color: #1e3728;
             border-color: #2ecc71;
             color: #2ecc71;
@@ -105,37 +85,26 @@
 
         input[type="file"] { display: none; }
 
-        /* Contenedor de Grabación de Audio */
         .audio-recorder {
             background-color: #000;
             border: 1px solid #333;
             border-radius: 8px;
-            padding: 12px 16px;
+            padding: 10px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .audio-status {
-            font-size: 0.85rem;
-            color: #aaa;
-            text-align: left;
+            margin-bottom: 18px;
         }
 
         .btn-record {
             background-color: var(--brand-red);
             color: #fff;
             border: none;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             font-size: 1.1rem;
             cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.2s;
         }
 
         .btn-record.recording {
@@ -144,9 +113,9 @@
         }
 
         @keyframes pulse-red {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 56, 56, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 56, 56, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 56, 56, 0); }
+            0% { transform: scale(0.95); }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(0.95); }
         }
 
         .btn-submit {
@@ -160,117 +129,44 @@
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: opacity 0.2s;
         }
 
-        .btn-submit:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+        .album-link { display: inline-block; margin-top: 18px; color: #888; font-size: 0.85rem; text-decoration: underline; }
 
-        .album-link {
-            display: inline-block;
-            margin-top: 18px;
-            color: #888;
-            font-size: 0.85rem;
-            text-decoration: underline;
-        }
+        .reactions { display: flex; justify-content: center; gap: 14px; margin-top: 20px; }
+        .reactions button { font-size: 1.7rem; background-color: var(--control-bg); border: 1px solid #282828; border-radius: 50%; width: 55px; height: 55px; cursor: pointer; }
 
-        /* Panel de Reacciones */
-        .reaction-panel {
-            margin-top: 25px;
-        }
-
-        .reaction-panel h3 {
-            font-size: 0.8rem;
-            color: #777;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
-
-        .reactions {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-        }
-
-        .reactions button {
-            font-size: 1.7rem;
-            background-color: var(--control-bg);
-            border: 1px solid #282828;
-            border-radius: 50%;
-            width: 55px;
-            height: 55px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 0.1s;
-        }
-
-        .reactions button:active {
-            transform: scale(0.9);
-        }
-
-        /* Footer y Contacto */
-        footer {
-            margin-top: auto;
-            width: 100%;
-            border-top: 1px solid #1a1a1a;
-            padding-top: 20px;
-            padding-bottom: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-        }
-
-        footer img {
-            height: 26px;
-            object-fit: contain;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 20px;
-            font-size: 1.4rem;
-        }
-
-        .social-links a {
-            color: #888;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .social-links a:hover {
-            color: var(--brand-red);
-        }
-
-        .company-contact {
-            font-size: 0.75rem;
-            color: #555;
-        }
+        footer { margin-top: auto; border-top: 1px solid #1a1a1a; padding-top: 15px; }
+        footer img { height: 26px; }
     </style>
 </head>
 <body>
 
     <header>
         <h1>EVENTO</h1>
-        <p>Deja un recuerdo en Pantalla</p>
+        <p>Dejar Recuerdo en Pantalla</p>
     </header>
 
     <div class="upload-card">
         <input type="text" id="name" placeholder="Tu Nombre / Familia" required>
-        <textarea id="message" placeholder="Escribe un mensaje o felicitación..."></textarea>
+        <textarea id="message" placeholder="Escribe una dedicatoria..."></textarea>
         
-        <label class="btn-file" for="photo" id="lblFile">📷 Adjuntar Foto</label>
-        <input type="file" id="photo" accept="image/*" capture="environment">
+        <!-- Botones de Subida de Foto y Grabación de Video -->
+        <div class="media-buttons-grid">
+            <label class="btn-media" for="photo" id="lblPhoto">
+                <i class="fas fa-camera"></i> Foto
+            </label>
+            <input type="file" id="photo" accept="image/*" capture="environment">
 
-        <!-- Grabadora iOS / Android -->
+            <label class="btn-media" for="video" id="lblVideo">
+                <i class="fas fa-video"></i> Video (30s)
+            </label>
+            <input type="file" id="video" accept="video/*" capture="environment">
+        </div>
+
+        <!-- Grabadora de Audio -->
         <div class="audio-recorder">
-            <span class="audio-status" id="audioStatus">Grabar nota de voz</span>
+            <span id="audioStatus" style="font-size: 0.85rem; color: #aaa;">Grabar nota de voz</span>
             <button type="button" class="btn-record" id="recordBtn" onclick="toggleRecord()">
                 <i class="fas fa-microphone"></i>
             </button>
@@ -280,52 +176,56 @@
         <a href="/album.html" class="album-link">📖 Ver Álbum Digital del Evento</a>
     </div>
 
-    <!-- Reacciones Rápidas -->
-    <div class="reaction-panel">
-        <h3>Reacciona en vivo</h3>
-        <div class="reactions">
-            <button onclick="reaccionar('🔥')">🔥</button>
-            <button onclick="reaccionar('❤️')">❤️</button>
-            <button onclick="reaccionar('🎉')">🎉</button>
-            <button onclick="reaccionar('✨')">✨</button>
-        </div>
+    <div class="reactions">
+        <button onclick="reaccionar('🔥')">🔥</button>
+        <button onclick="reaccionar('❤️')">❤️</button>
+        <button onclick="reaccionar('🎉')">🎉</button>
+        <button onclick="reaccionar('✨')">✨</button>
     </div>
 
-    <!-- Redes y Marca Light Sound -->
     <footer>
-        <img src="/logo_lightsound.jpg" alt="Light Sound" onerror="this.style.display='none'">
-        <div class="social-links">
-            <a href="https://www.instagram.com/lightsoundprofessionalteam/" target="_blank">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://wa.me/526622885556?text=Hola%20Light%20Sound,%20quiero%20información" target="_blank">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-        </div>
-        <p class="company-contact">Light Sound Professional Team | Wh: 662-288-5556</p>
+        <img src="/logo_lightsound.png" alt="Light Sound" onerror="this.style.display='none'">
     </footer>
 
     <script>
         const socket = io();
         const inputPhoto = document.getElementById('photo');
-        const lblFile = document.getElementById('lblFile');
+        const inputVideo = document.getElementById('video');
+        const lblPhoto = document.getElementById('lblPhoto');
+        const lblVideo = document.getElementById('lblVideo');
         const btnSend = document.getElementById('btnSend');
 
         let mediaRecorder;
         let audioChunks = [];
         let recordedBlob = null;
         let recordedExt = 'mp4';
-        let mimeType = '';
 
-        // UX Selector de Foto
+        // Manejo de Fotos
         inputPhoto.addEventListener('change', () => {
             if (inputPhoto.files.length) {
-                lblFile.textContent = '✅ Foto Seleccionada';
-                lblFile.classList.add('has-file');
+                lblPhoto.innerHTML = '<i class="fas fa-check"></i> Foto Lista';
+                lblPhoto.classList.add('has-file');
+                // Deseleccionar video si había
+                inputVideo.value = '';
+                lblVideo.innerHTML = '<i class="fas fa-video"></i> Video (30s)';
+                lblVideo.classList.remove('has-file');
             }
         });
 
-        // Grabadora con detección cruzada iOS / Android
+        // Manejo de Videos
+        inputVideo.addEventListener('change', () => {
+            if (inputVideo.files.length) {
+                const file = inputVideo.files[0];
+                lblVideo.innerHTML = '<i class="fas fa-check"></i> Video Listo';
+                lblVideo.classList.add('has-file');
+                // Deseleccionar foto si había
+                inputPhoto.value = '';
+                lblPhoto.innerHTML = '<i class="fas fa-camera"></i> Foto';
+                lblPhoto.classList.remove('has-file');
+            }
+        });
+
+        // Grabación de Audio
         async function toggleRecord() {
             const btn = document.getElementById('recordBtn');
             const status = document.getElementById('audioStatus');
@@ -333,43 +233,26 @@
             if (!mediaRecorder || mediaRecorder.state === 'inactive') {
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    
-                    // Selección estricta de códec compatible
-                    if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                        mimeType = 'audio/mp4';
-                        recordedExt = 'mp4';
-                    } else if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
-                        mimeType = 'audio/webm;codecs=opus';
-                        recordedExt = 'webm';
-                    } else if (MediaRecorder.isTypeSupported('audio/webm')) {
-                        mimeType = 'audio/webm';
-                        recordedExt = 'webm';
-                    } else {
-                        mimeType = '';
-                        recordedExt = 'mp4';
-                    }
+                    let mimeType = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : 'audio/webm';
+                    recordedExt = mimeType === 'audio/mp4' ? 'mp4' : 'webm';
 
-                    mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+                    mediaRecorder = new MediaRecorder(stream, { mimeType });
                     audioChunks = [];
 
-                    mediaRecorder.ondataavailable = (e) => {
-                        if (e.data && e.data.size > 0) audioChunks.push(e.data);
-                    };
-
+                    mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
                     mediaRecorder.onstop = () => {
-                        recordedBlob = new Blob(audioChunks, { type: mimeType || 'audio/mp4' });
-                        status.textContent = '✅ Audio Grabado Listo';
+                        recordedBlob = new Blob(audioChunks, { type: mimeType });
+                        status.textContent = '✅ Audio Grabado';
                         status.style.color = '#2ecc71';
-                        // Detener pistas de audio para liberar el micrófono en iOS
                         stream.getTracks().forEach(track => track.stop());
                     };
 
                     mediaRecorder.start();
                     btn.classList.add('recording');
-                    status.textContent = 'Grabando... (Toca para detener)';
+                    status.textContent = 'Grabando...';
                     status.style.color = '#ff3838';
                 } catch (err) {
-                    alert('Permiso de micrófono no otorgado. En iPhone ve a Ajustes > Safari > Micrófono y selecciona Permitir.');
+                    alert('Permiso de micrófono no disponible.');
                 }
             } else if (mediaRecorder.state === 'recording') {
                 mediaRecorder.stop();
@@ -377,46 +260,45 @@
             }
         }
 
-        // Envío unificado al Servidor
         async function enviarRecuerdo() {
             const author = document.getElementById('name').value.trim();
             const message = document.getElementById('message').value.trim();
-            const file = inputPhoto.files[0];
+            const photoFile = inputPhoto.files[0];
+            const videoFile = inputVideo.files[0];
 
-            if (!file && !message && !recordedBlob) {
-                return alert('Por favor agrega una foto, un mensaje o un audio.');
+            if (!photoFile && !videoFile && !message && !recordedBlob) {
+                return alert('Por favor selecciona una foto, video, mensaje o audio.');
             }
 
             const formData = new FormData();
             formData.append('author', author || 'Invitado');
             formData.append('message', message);
             
-            if (file) formData.append('photo', file);
+            if (photoFile) formData.append('photo', photoFile);
+            if (videoFile) formData.append('video', videoFile);
             if (recordedBlob) formData.append('audio', recordedBlob, `voice-${Date.now()}.${recordedExt}`);
 
             btnSend.disabled = true;
-            btnSend.textContent = 'Enviando...';
+            btnSend.textContent = 'Subiendo contenido...';
 
             try {
                 const res = await fetch('/api/upload', { method: 'POST', body: formData });
                 if (res.ok) {
-                    alert('¡Recuerdo enviado a pantalla y guardado en el álbum!');
+                    alert('¡Recuerdo enviado a la fila de proyección y guardado en el álbum!');
                     location.reload();
                 } else {
-                    alert('Hubo un detalle al enviar el recuerdo.');
+                    alert('Error al enviar el contenido.');
                     btnSend.disabled = false;
                     btnSend.textContent = '¡Proyectar y Guardar!';
                 }
             } catch (err) {
-                alert('Error de conexión con el servidor.');
+                alert('Error de conexión.');
                 btnSend.disabled = false;
                 btnSend.textContent = '¡Proyectar y Guardar!';
             }
         }
 
-        function reaccionar(emoji) {
-            socket.emit('send_reaction', emoji);
-        }
+        function reaccionar(emoji) { socket.emit('send_reaction', emoji); }
     </script>
 </body>
 </html>

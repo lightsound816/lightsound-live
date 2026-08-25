@@ -19,29 +19,22 @@
             position: relative;
         }
 
-        /* Barra Superior */
         .top-bar {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 90px;
+            top: 0; left: 0; width: 100%; height: 90px;
             padding: 0 40px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
+            display: flex; align-items: center; justify-content: flex-start;
             z-index: 20;
             background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
         }
 
         .event-title {
-            font-family: 'Playfair Display';
+            font-family: 'Open Sans';
             font-size: 2.2rem;
             color: #ff0000;
-            text-shadow: 0 2px 10px rgba(255, 68, 68, 0.5);
+            text-shadow: 0 2px 10px rgba(255, 28, 36, 0.5);
         }
 
-        /* Logo Centrado en la parte superior */
         .brand-logo-center {
             position: absolute;
             left: 50%;
@@ -51,7 +44,42 @@
             filter: drop-shadow(0 0 12px rgba(255, 0, 0, 0.45));
         }
 
-        /* Escenario de Proyección */
+        /* Contador y Fila Virtual (Esquina Superior Derecha) */
+        .queue-status-panel {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 30;
+        }
+
+        .timer-circle {
+            background: rgba(17, 17, 17, 0.85);
+            border: 2px solid #ff0000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .queue-badge {
+            background: rgba(20, 20, 20, 0.85);
+            border: 1px solid #444;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #00d2d3;
+        }
+
         .stage {
             width: 100vw;
             height: 100vh;
@@ -61,7 +89,7 @@
             padding: 95px 40px 45px 40px;
         }
 
-        .photo-card {
+        .media-card {
             position: relative;
             max-width: 90vw;
             max-height: calc(100vh - 130px);
@@ -71,7 +99,7 @@
             animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .photo-card img {
+        .media-card img, .media-card video {
             max-width: 85vw;
             max-height: calc(100vh - 200px);
             object-fit: contain;
@@ -84,7 +112,7 @@
         .text-only-card {
             background: #111;
             border: 3px solid #ff0000;
-            padding: 35px 45px;
+            padding: 40px 50px;
             border-radius: 20px;
             max-width: 75vw;
             text-align: center;
@@ -96,7 +124,6 @@
             font-size: 2.2rem;
             font-style: italic;
             line-height: 1.4;
-            color: #fff;
         }
 
         .author-badge {
@@ -122,7 +149,6 @@
             font-style: italic;
         }
 
-        /* Insignia para Audios Dejados */
         .audio-notice-badge {
             display: inline-flex;
             align-items: center;
@@ -135,16 +161,8 @@
             border-radius: 30px;
             font-size: 0.95rem;
             font-weight: 600;
-            box-shadow: 0 2px 10px rgba(0, 210, 211, 0.4);
-            animation: pulseNotice 2s infinite alternate;
         }
 
-        @keyframes pulseNotice {
-            from { transform: scale(0.98); }
-            to { transform: scale(1.02); }
-        }
-
-        /* Panel QR Inferior Izquierdo */
         .qr-overlay {
             position: absolute;
             bottom: 25px;
@@ -160,17 +178,8 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.9);
         }
 
-        .qr-text strong {
-            display: block;
-            font-size: 0.9rem;
-            color: #ff0000;
-        }
-
-        .qr-text span {
-            font-size: 0.65rem;
-            color: #aaa;
-            text-transform: uppercase;
-        }
+        .qr-text strong { display: block; font-size: 0.9rem; color: #ff0000; }
+        .qr-text span { font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
 
         @keyframes popIn {
             0% { transform: scale(0.92); opacity: 0; }
@@ -178,14 +187,9 @@
         }
 
         .emoji-blast {
-            position: absolute;
-            bottom: -50px;
-            font-size: 4rem;
-            pointer-events: none;
-            z-index: 40;
+            position: absolute; bottom: -50px; font-size: 4rem; pointer-events: none; z-index: 40;
             animation: riseUp 2.8s ease-in forwards;
         }
-
         @keyframes riseUp {
             0% { transform: translateY(0) scale(0.7); opacity: 1; }
             100% { transform: translateY(-115vh) scale(1.6); opacity: 0; }
@@ -194,25 +198,28 @@
 </head>
 <body>
 
-    <!-- Barra con Título y Logo Centrado -->
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
+        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
+        
+        <!-- Indicador de Fila y Temporizador -->
+        <div class="queue-status-panel">
+            <div class="queue-badge" id="queueBadge" style="display:none;">En cola: 0</div>
+            <div class="timer-circle" id="timerCircle" style="display:none;">30</div>
+        </div>
     </div>
 
-    <!-- Escenario Principal -->
     <div class="stage" id="stage">
-        <div class="photo-card" id="cardBox">
+        <div class="media-card" id="cardBox">
             <img id="mainImg" src="https://placehold.co/1200x800/111/fff?text=Esperando+recuerdos..." alt="Proyección">
             <div class="author-badge" id="mainAuthor">¡Escanea el QR para participar!</div>
         </div>
     </div>
 
-    <!-- Panel QR -->
     <div class="qr-overlay">
         <div id="qrcode"></div>
         <div class="qr-text">
-            <span>Fotos • Audios • Mensajes</span>
+            <span>Fotos • Videos • Audios</span>
             <strong>ESCANEA AQUÍ</strong>
         </div>
     </div>
@@ -220,25 +227,91 @@
     <script>
         const socket = io();
 
-        // Generar QR dinámico
         new QRCode(document.getElementById("qrcode"), {
             text: `${window.location.origin}/upload.html`,
-            width: 80,
-            height: 80,
-            colorDark: "#ffffff",
-            colorLight: "#111111"
+            width: 80, height: 80, colorDark: "#ffffff", colorLight: "#111111"
         });
 
-        // Manejador de nuevo contenido en tiempo real
+        // Cola Virtual Inteligente
+        const queue = [];
+        let isPresenting = false;
+        let countdownInterval = null;
+
         socket.on('new_content', (data) => {
+            queue.push(data);
+            updateQueueStatus();
+            if (!isPresenting) {
+                processNextInQueue();
+            }
+        });
+
+        function updateQueueStatus() {
+            const badge = document.getElementById('queueBadge');
+            if (queue.length > 0) {
+                badge.style.display = 'block';
+                badge.textContent = `En espera: ${queue.length}`;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function processNextInQueue() {
+            if (queue.length === 0) {
+                isPresenting = false;
+                document.getElementById('timerCircle').style.display = 'none';
+                return;
+            }
+
+            isPresenting = true;
+            const data = queue.shift();
+            updateQueueStatus();
+
+            // Duración: 30s para fotos/videos, 15s para mensajes/audios
+            const isMedia = Boolean(data.photoUrl || data.videoUrl);
+            let timeLeft = isMedia ? 30 : 15;
+
+            const timerEl = document.getElementById('timerCircle');
+            timerEl.style.display = 'flex';
+            timerEl.textContent = timeLeft;
+
+            renderSlide(data);
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    processNextInQueue();
+                }
+            }, 1000);
+        }
+
+        function renderSlide(data) {
             const stage = document.getElementById('stage');
             stage.innerHTML = '';
 
             const card = document.createElement('div');
 
-            // Caso 1: Trae Foto
-            if (data.photoUrl) {
-                card.className = 'photo-card';
+            // 1. Caso Video
+            if (data.videoUrl) {
+                card.className = 'media-card';
+                const video = document.createElement('video');
+                video.src = data.videoUrl;
+                video.autoplay = true;
+                video.muted = false; // Permite reproducir con audio en la proyección
+                video.playsInline = true;
+                card.appendChild(video);
+
+                const author = document.createElement('div');
+                author.className = 'author-badge';
+                author.textContent = data.author;
+                card.appendChild(author);
+            }
+            // 2. Caso Foto
+            else if (data.photoUrl) {
+                card.className = 'media-card';
                 const img = document.createElement('img');
                 img.src = data.photoUrl;
                 card.appendChild(img);
@@ -254,8 +327,8 @@
                     msg.textContent = `“${data.message}”`;
                     card.appendChild(msg);
                 }
-            } 
-            // Caso 2: Solo Texto y/o Audio (Sin Foto)
+            }
+            // 3. Caso Solo Texto / Audio
             else {
                 card.className = 'text-only-card';
                 if (data.message) {
@@ -270,7 +343,6 @@
                 card.appendChild(author);
             }
 
-            // Leyenda si el invitado grabó un audio
             if (data.audioUrl) {
                 const audioBadge = document.createElement('div');
                 audioBadge.className = 'audio-notice-badge';
@@ -279,9 +351,8 @@
             }
 
             stage.appendChild(card);
-        });
+        }
 
-        // Reacciones con emojis en pantalla
         socket.on('show_reaction', (emoji) => {
             const el = document.createElement('div');
             el.className = 'emoji-blast';

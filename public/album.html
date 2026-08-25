@@ -10,16 +10,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0a0a; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px 15px; }
         header { text-align: center; margin-bottom: 25px; }
-        header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #ff0000; }
+        header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #ff4081; }
         header p { color: #888; font-size: 0.9rem; margin-top: 4px; }
 
-        /* Barra de Acciones / Descarga General */
-        .actions-bar {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
+        .actions-bar { display: flex; justify-content: center; margin-bottom: 30px; }
         .btn-download-all {
             background: linear-gradient(135deg, #ff0000, #b30000);
             color: #fff;
@@ -32,11 +26,6 @@
             align-items: center;
             gap: 10px;
             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
-            transition: transform 0.2s;
-        }
-
-        .btn-download-all:active {
-            transform: scale(0.97);
         }
 
         .gallery-grid {
@@ -58,21 +47,20 @@
             position: relative;
         }
 
-        .img-container {
+        .media-container {
             position: relative;
             width: 100%;
             height: 260px;
             background: #000;
         }
 
-        .memory-card img {
+        .media-container img, .media-container video {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        /* Botón de descarga sobre la foto */
-        .btn-download-photo {
+        .btn-download-media {
             position: absolute;
             top: 12px;
             right: 12px;
@@ -88,12 +76,6 @@
             text-decoration: none;
             font-size: 0.9rem;
             backdrop-filter: blur(4px);
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .btn-download-photo:active {
-            transform: scale(0.9);
-            background: #ff0000;
         }
         
         .memory-body {
@@ -104,22 +86,9 @@
             justify-content: space-between;
         }
 
-        .memory-author {
-            font-weight: 700;
-            color: #ff4040;
-            margin-bottom: 6px;
-            font-size: 1.1rem;
-        }
+        .memory-author { font-weight: 700; color: #ff4081; margin-bottom: 6px; font-size: 1.1rem; }
+        .memory-msg { font-style: italic; color: #ddd; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; }
 
-        .memory-msg {
-            font-style: italic;
-            color: #ddd;
-            margin-bottom: 12px;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        /* Contenedor y Botón de Audio Individual */
         .audio-section {
             margin-top: 10px;
             background: #1c1c1c;
@@ -131,48 +100,23 @@
             gap: 10px;
         }
 
-        audio {
-            flex: 1;
-            height: 36px;
-            outline: none;
-        }
-
+        audio { flex: 1; height: 36px; outline: none; }
         .btn-download-audio {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #00d2d3;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-            font-size: 0.85rem;
-            flex-shrink: 0;
-            transition: background 0.2s;
+            background: #2a2a2a; border: 1px solid #444; color: #00d2d3;
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            text-decoration: none; font-size: 0.85rem; flex-shrink: 0;
         }
 
-        .btn-download-audio:active {
-            background: #00d2d3;
-            color: #000;
-        }
-
-        .memory-time {
-            font-size: 0.75rem;
-            color: #666;
-            margin-top: 12px;
-            text-align: right;
-        }
+        .memory-time { font-size: 0.75rem; color: #666; margin-top: 12px; text-align: right; }
     </style>
 </head>
 <body>
     <header>
-        <h1>Álbum de Recuerdos</h1>
+        <h1>Álbum de Recuerdos ✨</h1>
         <p>Libro de Visitas Digital • Light Sound</p>
     </header>
 
-    <!-- Botón Descarga General ZIP -->
     <div class="actions-bar">
         <a href="/api/download-album" class="btn-download-all">
             <i class="fas fa-file-zipper"></i> Descargar Todo el Álbum (.ZIP)
@@ -194,25 +138,35 @@
                 }
 
                 grid.innerHTML = data.map(item => {
-                    // Contenedor Foto + Botón Descarga Individual
-                    let photoMarkup = '';
-                    if (item.photoUrl) {
-                        photoMarkup = `
-                            <div class="img-container">
+                    let mediaMarkup = '';
+                    
+                    // Si es Video
+                    if (item.videoUrl) {
+                        mediaMarkup = `
+                            <div class="media-container">
+                                <video controls preload="metadata" playsinline webkit-playsinline src="${item.videoUrl}"></video>
+                                <a href="${item.videoUrl}" download class="btn-download-media" title="Descargar Video">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        `;
+                    }
+                    // Si es Foto
+                    else if (item.photoUrl) {
+                        mediaMarkup = `
+                            <div class="media-container">
                                 <img src="${item.photoUrl}" alt="Foto de ${item.author}">
-                                <a href="${item.photoUrl}" download class="btn-download-photo" title="Descargar Foto">
+                                <a href="${item.photoUrl}" download class="btn-download-media" title="Descargar Foto">
                                     <i class="fas fa-download"></i>
                                 </a>
                             </div>
                         `;
                     }
 
-                    // Contenedor Audio + Botón Descarga Individual
                     let audioMarkup = '';
                     if (item.audioUrl) {
                         const isMp4 = item.audioUrl.endsWith('.mp4');
                         const mimeType = isMp4 ? 'audio/mp4' : 'audio/webm';
-                        
                         audioMarkup = `
                             <div class="audio-section">
                                 <audio controls preload="metadata" playsinline webkit-playsinline>
@@ -227,7 +181,7 @@
 
                     return `
                         <div class="memory-card">
-                            ${photoMarkup}
+                            ${mediaMarkup}
                             <div class="memory-body">
                                 <div>
                                     <div class="memory-author">${item.author}</div>
@@ -240,7 +194,7 @@
                     `;
                 }).join('');
             } catch (err) {
-                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#ff4757;">Error al cargar los recuerdos.</p>';
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#ff4757;">Error al cargar el álbum.</p>';
             }
         }
         loadAlbum();
