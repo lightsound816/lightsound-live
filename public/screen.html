@@ -25,7 +25,7 @@
         .stage-flash {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle, rgba(255, 0, 60, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 0, 0, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
             pointer-events: none;
             z-index: 50;
             opacity: 0;
@@ -53,10 +53,10 @@
         }
 
         .event-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 2.2rem;
-            color: #ff4081;
-            text-shadow: 0 2px 12px rgba(255, 64, 129, 0.6);
+            color: #ff0000;
+            text-shadow: 0 2px 12px rgba(255, 64, 64, 0.6);
         }
 
         .brand-logo-center {
@@ -109,7 +109,7 @@
             position: absolute;
             top: 52%;
             transform: translateY(-50%);
-            width: 230px;
+            width: 265px;
             background: rgba(12, 12, 12, 0.94);
             border-radius: 24px;
             padding: 20px 18px;
@@ -132,8 +132,8 @@
         /* Lateral Derecho: Instagram Light Sound */
         .panel-instagram {
             right: 30px;
-            border: 2px solid rgba(255, 0, 128, 0.85);
-            box-shadow: 0 0 35px rgba(255, 0, 128, 0.3), inset 0 0 15px rgba(255, 0, 128, 0.1);
+            border: 2px solid rgba(255, 0, 0, 0.85);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.3), inset 0 0 15px rgba(255, 0, 128, 0.1);
         }
 
         .side-panel .panel-badge {
@@ -156,9 +156,9 @@
         }
 
         .panel-instagram .panel-badge {
-            background: rgba(255, 0, 128, 0.15);
-            color: #ff4081;
-            border: 1px solid rgba(255, 0, 128, 0.4);
+            background: rgba(255, 0, 0, 0.15);
+            color: #ff0000;
+            border: 1px solid rgba(255, 0, 0, 0.4);
         }
 
         .side-panel .qr-card {
@@ -186,7 +186,7 @@
         }
 
         .panel-upload .panel-info strong { color: #00d2d3; text-shadow: 0 0 8px rgba(0, 210, 211, 0.5); }
-        .panel-instagram .panel-info strong { color: #ff4081; text-shadow: 0 0 8px rgba(255, 64, 129, 0.5); }
+        .panel-instagram .panel-info strong { color: #ff0000; text-shadow: 0 0 8px rgba(255, 64, 64, 0.5); }
 
         /* Escenario Central */
         .stage {
@@ -200,7 +200,7 @@
 
         .media-card {
             position: relative;
-            max-width: 60vw;
+            max-width: 55vw;
             max-height: calc(100vh - 130px);
             display: flex;
             flex-direction: column;
@@ -215,7 +215,7 @@
             object-fit: contain;
             border-radius: 14px;
             border: 3px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 60px rgba(255, 0, 50, 0.5), 0 0 120px rgba(255, 0, 50, 0.2);
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.5), 0 0 120px rgba(255, 0, 50, 0.2);
             background: #111;
         }
 
@@ -307,7 +307,7 @@
     <!-- Barra Superior -->
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center">
+        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center">
         
         <div class="queue-status-panel">
             <div class="queue-badge" id="queueBadge">En espera: 0</div>
