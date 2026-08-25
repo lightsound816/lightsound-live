@@ -10,8 +10,34 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #0a0a0a; color: #fff; font-family: 'Montserrat', sans-serif; padding: 20px 15px; }
         header { text-align: center; margin-bottom: 25px; }
-        header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #ff0000; }
-        header p { color: #888; font-size: 0.85rem; margin-top: 4px; }
+        header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #ff0000; }
+        header p { color: #888; font-size: 0.9rem; margin-top: 4px; }
+
+        /* Barra de Acciones / Descarga */
+        .actions-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #ff0000, #b30000);
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-download:active {
+            transform: scale(0.97);
+        }
 
         .gallery-grid {
             display: grid;
@@ -48,7 +74,7 @@
 
         .memory-author {
             font-weight: 700;
-            color: #fe0000;
+            color: #ff0000;
             margin-bottom: 6px;
             font-size: 1.1rem;
         }
@@ -61,7 +87,6 @@
             line-height: 1.4;
         }
 
-        /* Reproductor de Audio Optimizado para iOS */
         .audio-player-container {
             margin-top: 10px;
             background: #1f1f1f;
@@ -89,6 +114,13 @@
         <h1>Álbum de Recuerdos ✨</h1>
         <p>Libro de Visitas Digital • Light Sound</p>
     </header>
+
+    <!-- Botón de Descarga del Respaldo -->
+    <div class="actions-bar">
+        <a href="/api/download-album" class="btn-download">
+            <i class="fas fa-file-zipper"></i> Descargar Todo el Álbum (.ZIP)
+        </a>
+    </div>
 
     <div class="gallery-grid" id="grid"></div>
 
