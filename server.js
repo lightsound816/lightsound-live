@@ -4,23 +4,18 @@ const { Server } = require('socket.io');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const archiver = require('archiver');
+const AdmZip = require('adm-zip'); // Usamos adm-zip
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 
-// Rutas de almacenamiento local
+// Rutas de almacenamiento
 const uploadDir = path.join(__dirname, 'public/uploads');
 const dbFile = path.join(__dirname, 'album.json');
 
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-if (!fs.existsSync(dbFile)) {
-    fs.writeFileSync(dbFile, JSON.stringify([]));
-}
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(dbFile)) fs.writeFileSync(dbFile, JSON.stringify([]));
 
 // Configuración de Multer
 const storage = multer.diskStorage({
@@ -49,7 +44,7 @@ function saveToAlbum(item) {
     }
 }
 
-// Endpoint de recepción de fotos / mensajes / audios
+// Endpoint de subida
 app.post('/api/upload', upload.fields([{ name: 'photo', maxCount: 1 }, { name: 'audio', maxCount: 1 }]), (req, res) => {
     try {
         const author = req.body.author || 'Invitado';
@@ -91,42 +86,18 @@ app.get('/api/album', (req, res) => {
     }
 });
 
-// Endpoint de descarga de ZIP blindado
-app.get('/api/download-album', async (req, res) => {
+// NUEVO ENDPOINT DE DESCARGA ZIP DIRECTA EN MEMORIA (ADM-ZIP)
+app.get('/api/download-album', (req, res) => {
     try {
-        // Asegurar que la carpeta uploads exista físicamente
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const archive = archiver('zip', {
-            zlib: { level: 9 }
-        });
-
-        // Configurar cabeceras antes de pipear
-        res.setHeader('Content-Type', 'application/zip');
-        res.setHeader('Content-Disposition', 'attachment; filename="Album-Recuerdos-LightSound.zip"');
-
-        archive.on('error', (err) => {
-            console.error('Error en archiver:', err);
-            if (!res.headersSent) {
-                res.status(500).send('Error durante la compresión del archivo.');
-            }
-        });
-
-        archive.pipe(res);
+        const zip = new AdmZip();
 
         // 1. Agregar archivos multimedia existentes
-        const files = fs.readdirSync(uploadDir);
-        if (files && files.length > 0) {
+        if (fs.existsSync(uploadDir)) {
+            const files = fs.readdirSync(uploadDir);
             files.forEach(file => {
                 const fullPath = path.join(uploadDir, file);
-                try {
-                    if (fs.statSync(fullPath).isFile()) {
-                        archive.file(fullPath, { name: `archivos_multimedia/${file}` });
-                    }
-                } catch (e) {
-                    console.error(`No se pudo agregar el archivo ${file}:`, e);
+                if (fs.statSync(fullPath).isFile()) {
+                    zip.addLocalFile(fullPath, 'archivos_multimedia');
                 }
             });
         }
@@ -147,7 +118,7 @@ app.get('/api/download-album', async (req, res) => {
         }
 
         if (album.length === 0) {
-            textReport += "Aún no hay registros de dedicatorias en este evento.\n";
+            textReport += "Aún no hay dedicatorias registradas en este evento.\n";
         } else {
             album.forEach((item, index) => {
                 textReport += `[Recuerdo #${index + 1}]\n`;
@@ -160,17 +131,20 @@ app.get('/api/download-album', async (req, res) => {
             });
         }
 
-        // Agregar el archivo de texto al ZIP
-        archive.append(textReport, { name: 'Dedicatorias_y_Mensajes.txt' });
+        zip.addFile('Dedicatorias_y_Mensajes.txt', Buffer.from(textReport, 'utf8'));
 
-        // Finalizar el empaquetado
-        await archive.finalize();
+        // Generar el archivo en buffer y enviarlo directamente
+        const zipBuffer = zip.toBuffer();
+
+        res.set('Content-Type', 'application/octet-stream');
+        res.set('Content-Disposition', 'attachment; filename="Album-Recuerdos-LightSound.zip"');
+        res.set('Content-Length', zipBuffer.length);
+        
+        return res.send(zipBuffer);
 
     } catch (err) {
-        console.error('Error general en endpoint ZIP:', err);
-        if (!res.headersSent) {
-            res.status(500).send('Error al procesar la descarga');
-        }
+        console.error('Error al generar el ZIP:', err);
+        return res.status(500).send('Error interno al generar el archivo');
     }
 });
 

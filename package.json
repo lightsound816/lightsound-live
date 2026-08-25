@@ -11,6 +11,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "adm-zip": "^0.6.0",
     "archiver": "^8.0.0",
     "cors": "^2.8.6",
     "expr": "^0.0.0",
