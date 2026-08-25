@@ -91,55 +91,83 @@ app.get('/api/album', (req, res) => {
     }
 });
 
-// Endpoint de descarga de ZIP
-app.get('/api/download-album', (req, res) => {
+// Endpoint de descarga de ZIP blindado
+app.get('/api/download-album', async (req, res) => {
     try {
+        // Asegurar que la carpeta uploads exista físicamente
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
         const archive = archiver('zip', {
             zlib: { level: 9 }
         });
 
-        // Configurar nombre de descarga
-        res.attachment('Album-Recuerdos-LightSound.zip');
+        // Configurar cabeceras antes de pipear
+        res.setHeader('Content-Type', 'application/zip');
+        res.setHeader('Content-Disposition', 'attachment; filename="Album-Recuerdos-LightSound.zip"');
 
         archive.on('error', (err) => {
-            console.error('Error al empaquetar:', err);
+            console.error('Error en archiver:', err);
             if (!res.headersSent) {
-                res.status(500).send('Error interno en compresión');
+                res.status(500).send('Error durante la compresión del archivo.');
             }
         });
 
         archive.pipe(res);
 
-        // 1. Agregar archivos si la carpeta existe
-        if (fs.existsSync(uploadDir)) {
-            archive.directory(uploadDir, 'archivos_multimedia');
+        // 1. Agregar archivos multimedia existentes
+        const files = fs.readdirSync(uploadDir);
+        if (files && files.length > 0) {
+            files.forEach(file => {
+                const fullPath = path.join(uploadDir, file);
+                try {
+                    if (fs.statSync(fullPath).isFile()) {
+                        archive.file(fullPath, { name: `archivos_multimedia/${file}` });
+                    }
+                } catch (e) {
+                    console.error(`No se pudo agregar el archivo ${file}:`, e);
+                }
+            });
         }
 
-        // 2. Generar el reporte de dedicatorias
-        let textReport = "=== LIBRO DE RECUERDOS Y DEDICATORIAS - LIGHT SOUND ===\n\n";
+        // 2. Generar el reporte de texto con dedicatorias
+        let textReport = "=====================================================\n";
+        textReport += "   LIBRO DE RECUERDOS Y DEDICATORIAS - LIGHT SOUND   \n";
+        textReport += "=====================================================\n\n";
+
+        let album = [];
         if (fs.existsSync(dbFile)) {
             try {
                 const raw = fs.readFileSync(dbFile, 'utf8');
-                const album = JSON.parse(raw || '[]');
-                album.forEach((item, index) => {
-                    textReport += `[#${index + 1}] De: ${item.author} (${item.timestamp})\n`;
-                    if (item.message) textReport += `Mensaje: "${item.message}"\n`;
-                    if (item.photoUrl) textReport += `Foto: ${item.photoUrl}\n`;
-                    if (item.audioUrl) textReport += `Audio: ${item.audioUrl}\n`;
-                    textReport += "--------------------------------------------------\n\n";
-                });
+                album = JSON.parse(raw || '[]');
             } catch (e) {
-                textReport += "No se pudieron recuperar las dedicatorias en texto.\n";
+                album = [];
             }
         }
 
+        if (album.length === 0) {
+            textReport += "Aún no hay registros de dedicatorias en este evento.\n";
+        } else {
+            album.forEach((item, index) => {
+                textReport += `[Recuerdo #${index + 1}]\n`;
+                textReport += `De: ${item.author || 'Invitado'}\n`;
+                textReport += `Hora: ${item.timestamp || 'N/A'}\n`;
+                if (item.message) textReport += `Mensaje: "${item.message}"\n`;
+                if (item.photoUrl) textReport += `Foto: ${path.basename(item.photoUrl)}\n`;
+                if (item.audioUrl) textReport += `Audio: ${path.basename(item.audioUrl)}\n`;
+                textReport += "-----------------------------------------------------\n\n";
+            });
+        }
+
+        // Agregar el archivo de texto al ZIP
         archive.append(textReport, { name: 'Dedicatorias_y_Mensajes.txt' });
 
-        // Finalizar compresión
-        archive.finalize();
+        // Finalizar el empaquetado
+        await archive.finalize();
 
     } catch (err) {
-        console.error('Error general en endpoint:', err);
+        console.error('Error general en endpoint ZIP:', err);
         if (!res.headersSent) {
             res.status(500).send('Error al procesar la descarga');
         }
