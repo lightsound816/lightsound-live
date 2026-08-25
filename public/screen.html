@@ -232,12 +232,19 @@
 
         const queue = [];
         let isPresenting = false;
+        let isLoopingAlone = false;
         let countdownInterval = null;
 
         socket.on('new_content', (data) => {
             queue.push(data);
             updateQueueStatus();
-            if (!isPresenting) {
+            
+            // Si el video actual estaba repitiéndose solo en loop, avanza de inmediato
+            if (isLoopingAlone) {
+                isLoopingAlone = false;
+                if (countdownInterval) clearInterval(countdownInterval);
+                processNextInQueue();
+            } else if (!isPresenting) {
                 processNextInQueue();
             }
         });
@@ -255,11 +262,13 @@
         function processNextInQueue() {
             if (queue.length === 0) {
                 isPresenting = false;
+                isLoopingAlone = false;
                 document.getElementById('timerCircle').style.display = 'none';
                 return;
             }
 
             isPresenting = true;
+            isLoopingAlone = false;
             const data = queue.shift();
             updateQueueStatus();
 
@@ -268,27 +277,49 @@
 
             if (countdownInterval) clearInterval(countdownInterval);
 
-            // Caso 1: Es Video (Duración dinámica hasta un máximo de 30s)
+            // Caso 1: Video
             if (data.videoUrl) {
                 renderVideoSlide(data, (videoDuration) => {
-                    // Si el video dura menos de 30s, usa sus segundos exactos; si dura más, se limita a 30s
                     let duration = Math.min(Math.ceil(videoDuration) || 30, 30);
-                    startCountdown(duration);
+                    startCountdown(duration, () => {
+                        // Al terminar el tiempo del video:
+                        if (queue.length > 0) {
+                            processNextInQueue();
+                        } else {
+                            // No hay nadie en espera: activar bucle infinito
+                            isLoopingAlone = true;
+                            timerEl.style.display = 'none';
+                        }
+                    });
                 });
             } 
-            // Caso 2: Es Foto (30 segundos fijos)
+            // Caso 2: Foto (30s)
             else if (data.photoUrl) {
                 renderPhotoSlide(data);
-                startCountdown(30);
+                startCountdown(25, () => {
+                    if (queue.length > 0) {
+                        processNextInQueue();
+                    } else {
+                        timerEl.style.display = 'none';
+                        isPresenting = false;
+                    }
+                });
             } 
-            // Caso 3: Solo Texto / Audio (15 segundos fijos)
+            // Caso 3: Solo Texto / Audio (15s)
             else {
                 renderTextSlide(data);
-                startCountdown(15);
+                startCountdown(10, () => {
+                    if (queue.length > 0) {
+                        processNextInQueue();
+                    } else {
+                        timerEl.style.display = 'none';
+                        isPresenting = false;
+                    }
+                });
             }
         }
 
-        function startCountdown(seconds) {
+        function startCountdown(seconds, onComplete) {
             let timeLeft = seconds;
             const timerEl = document.getElementById('timerCircle');
             timerEl.textContent = timeLeft;
@@ -298,7 +329,7 @@
                 timerEl.textContent = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(countdownInterval);
-                    processNextInQueue();
+                    onComplete();
                 }
             }, 1000);
         }
@@ -313,14 +344,13 @@
             const video = document.createElement('video');
             video.src = data.videoUrl;
             video.autoplay = true;
+            video.loop = true; // Activar loop continuo
             video.playsInline = true;
 
-            // Leer metadatos del video para obtener duración exacta
             video.onloadedmetadata = () => {
                 onReadyDuration(video.duration);
             };
 
-            // En caso de que tarde en cargar metadatos, fallback a 30s
             setTimeout(() => {
                 if (!video.duration) onReadyDuration(30);
             }, 1000);
