@@ -112,7 +112,7 @@ app.get('/api/download-album', (req, res) => {
             files.forEach(file => {
                 const fullPath = path.join(uploadDir, file);
                 if (fs.statSync(fullPath).isFile()) {
-                    zip.addLocalFile(fullPath, 'archivos_multimedia');
+                    zip.addLocalFile(fullPath, 'Contenido exclusivo del evento');
                 }
             });
         }
