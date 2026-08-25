@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyección en Vivo - Light Sound</title>
+    <title>Proyección en Vivo - LightSound</title>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
@@ -17,8 +17,31 @@
             height: 100vh;
             overflow: hidden;
             position: relative;
+            perspective: 1200px;
         }
 
+        /* Destello inmersivo al cambiar de recuerdo */
+        .stage-flash {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle, rgba(255, 0, 60, 0.45) 0%, rgba(255, 255, 255, 0.25) 30%, transparent 70%);
+            pointer-events: none;
+            z-index: 15;
+            opacity: 0;
+            mix-blend-mode: screen;
+        }
+
+        .flash-active {
+            animation: immersiveFlash 0.75s ease-out forwards;
+        }
+
+        @keyframes immersiveFlash {
+            0% { opacity: 0; transform: scale(0.6); }
+            30% { opacity: 1; transform: scale(1.15); }
+            100% { opacity: 0; transform: scale(1.4); }
+        }
+
+        /* Barra Superior */
         .top-bar {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 90px;
@@ -29,10 +52,10 @@
         }
 
         .event-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Montserrat', sans-serif;
             font-size: 2.2rem;
-            color: #ff4081;
-            text-shadow: 0 2px 10px rgba(255, 64, 129, 0.5);
+            color: #ff0000;
+            text-shadow: 0 2px 10px rgba(255, 64, 64, 0.5);
         }
 
         .brand-logo-center {
@@ -80,6 +103,7 @@
             display: none;
         }
 
+        /* Escenario */
         .stage {
             width: 100vw;
             height: 100vh;
@@ -89,6 +113,7 @@
             padding: 95px 40px 45px 40px;
         }
 
+        /* Transición 3D / Zoom Inmersivo */
         .media-card {
             position: relative;
             max-width: 90vw;
@@ -96,71 +121,109 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: immersivePopIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            transform-origin: center center;
         }
 
         .media-card img, .media-card video {
             max-width: 85vw;
             max-height: calc(100vh - 200px);
             object-fit: contain;
-            border-radius: 12px;
-            border: 4px solid #fff;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.35);
+            border-radius: 14px;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 60px rgba(255, 0, 50, 0.5), 0 0 120px rgba(255, 0, 50, 0.2);
             background: #111;
         }
 
         .text-only-card {
-            background: #111;
-            border: 3px solid #ff0000;
-            padding: 40px 50px;
-            border-radius: 20px;
+            background: rgba(17, 17, 17, 0.95);
+            border: 2px solid #ff0000;
+            padding: 45px 55px;
+            border-radius: 24px;
             max-width: 75vw;
             text-align: center;
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.35);
-            animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 60px rgba(255, 0, 50, 0.45);
+            animation: immersivePopIn 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
         }
 
         .text-only-card p {
-            font-size: 2.2rem;
+            font-size: 2.3rem;
             font-style: italic;
             line-height: 1.4;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
 
+        /* Elementos escalonados con Fade-Slide */
         .author-badge {
-            margin-top: 10px;
+            margin-top: 12px;
             background: rgba(0, 0, 0, 0.9);
             border: 2px solid #ff0000;
-            padding: 8px 26px;
+            padding: 8px 28px;
             border-radius: 50px;
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             font-weight: 700;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.9);
+            animation: elementFloat 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
         }
 
         .message-sub {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #f1f1f1;
-            margin-top: 6px;
+            margin-top: 8px;
             max-width: 80vw;
             text-align: center;
-            background: rgba(0,0,0,0.75);
-            padding: 6px 16px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 20px;
+            border-radius: 10px;
             font-style: italic;
+            animation: elementFloat 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both;
         }
 
         .audio-notice-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-top: 8px;
+            margin-top: 10px;
             background: linear-gradient(90deg, #1e3c72, #2a5298);
             border: 1px solid #00d2d3;
             color: #fff;
-            padding: 6px 18px;
+            padding: 7px 20px;
             border-radius: 30px;
             font-size: 0.95rem;
             font-weight: 600;
+            box-shadow: 0 0 15px rgba(0, 210, 211, 0.5);
+            animation: elementFloat 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+        }
+
+        /* Animaciones */
+        @keyframes immersivePopIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.72) translateZ(-150px) rotateX(8deg);
+                filter: blur(12px) brightness(1.8);
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1.02) translateZ(20px) rotateX(-1deg);
+                filter: blur(0px) brightness(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateZ(0) rotateX(0deg);
+                filter: blur(0px) brightness(1);
+            }
+        }
+
+        @keyframes elementFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(25px) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .qr-overlay {
@@ -181,11 +244,6 @@
         .qr-text strong { display: block; font-size: 0.9rem; color: #ff0000; }
         .qr-text span { font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
 
-        @keyframes popIn {
-            0% { transform: scale(0.92); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
         .emoji-blast {
             position: absolute; bottom: -50px; font-size: 4rem; pointer-events: none; z-index: 40;
             animation: riseUp 2.8s ease-in forwards;
@@ -198,9 +256,12 @@
 </head>
 <body>
 
+    <!-- Capa de Destello Inmersivo -->
+    <div class="stage-flash" id="flashFx"></div>
+
     <div class="top-bar">
         <div class="event-title">EVENTO</div>
-        <img src="/logo_lightsound.png" alt="Light Sound" class="brand-logo-center" onerror="this.style.display='none'">
+        <img src="/logo_lightsound.jpg" alt="Light Sound" class="brand-logo-center">
         
         <div class="queue-status-panel">
             <div class="queue-badge" id="queueBadge">En espera: 0</div>
@@ -218,7 +279,7 @@
     <div class="qr-overlay">
         <div id="qrcode"></div>
         <div class="qr-text">
-            <span>Fotos • Videos • Audios</span>
+            <span>Fotos • Videos • Audios • Mensajes</span>
             <strong>ESCANEA AQUÍ</strong>
         </div>
     </div>
@@ -236,11 +297,17 @@
         let isLoopingAlone = false;
         let countdownInterval = null;
 
+        function triggerFlashEffect() {
+            const flash = document.getElementById('flashFx');
+            flash.classList.remove('flash-active');
+            void flash.offsetWidth; // Forzar reflow para reiniciar animación
+            flash.classList.add('flash-active');
+        }
+
         socket.on('new_content', (data) => {
             queue.push(data);
             updateQueueStatus();
             
-            // Si el video actual estaba repitiéndose solo en loop sin contador, pasar al nuevo de inmediato
             if (isLoopingAlone) {
                 isLoopingAlone = false;
                 if (countdownInterval) clearInterval(countdownInterval);
@@ -272,26 +339,28 @@
             isLoopingAlone = false;
             const data = queue.shift();
             updateQueueStatus();
+            triggerFlashEffect(); // Disparar destello luminoso
+
+            const timerEl = document.getElementById('timerCircle');
+            timerEl.style.display = 'flex';
 
             if (countdownInterval) clearInterval(countdownInterval);
 
-            // Caso 1: Video
+            // 1. Video
             if (data.videoUrl) {
                 renderVideoSlide(data, (exactDuration) => {
                     let duration = Math.min(Math.ceil(exactDuration) || 30, 30);
                     startCountdown(duration, () => {
-                        // Al terminar la primera pasada:
                         if (queue.length > 0) {
                             processNextInQueue();
                         } else {
-                            // Sin nadie en espera: quitar contador y dejar en loop continuo
                             isLoopingAlone = true;
                             document.getElementById('timerCircle').style.display = 'none';
                         }
                     });
                 });
             } 
-            // Caso 2: Foto (30s)
+            // 2. Foto
             else if (data.photoUrl) {
                 renderPhotoSlide(data);
                 startCountdown(30, () => {
@@ -303,7 +372,7 @@
                     }
                 });
             } 
-            // Caso 3: Solo Texto / Audio (15s)
+            // 3. Solo Texto / Audio
             else {
                 renderTextSlide(data);
                 startCountdown(15, () => {
@@ -320,7 +389,6 @@
         function startCountdown(seconds, onComplete) {
             let timeLeft = seconds;
             const timerEl = document.getElementById('timerCircle');
-            timerEl.style.display = 'flex';
             timerEl.textContent = timeLeft;
 
             countdownInterval = setInterval(() => {
@@ -346,11 +414,10 @@
             video.autoplay = true;
             video.loop = true;
             video.playsInline = true;
-            video.muted = true; // Evita bloqueos de autoplay
+            video.muted = true;
 
             let durationDispatched = false;
 
-            // Espera a que cargue suficiente video para no trabarse
             video.oncanplay = () => {
                 video.play().catch(() => {});
                 if (!durationDispatched && video.duration) {
@@ -359,7 +426,6 @@
                 }
             };
 
-            // Fallback por si la duración tarda en responder
             setTimeout(() => {
                 if (!durationDispatched) {
                     durationDispatched = true;
