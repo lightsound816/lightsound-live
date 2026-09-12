@@ -118,7 +118,7 @@ app.get('/api/download-album', (req, res) => {
         }
 
         let textReport = "=====================================================\n";
-        textReport += "   LIBRO DE RECUERDOS Y DEDICATORIAS - LIGHTSOUND   \n";
+        textReport += "   LIBRO DE RECUERDOS Y DEDICATORIAS - XV MAJO   \n";
         textReport += "=====================================================\n\n";
 
         let album = [];
@@ -144,7 +144,7 @@ app.get('/api/download-album', (req, res) => {
 
         const zipBuffer = zip.toBuffer();
         res.set('Content-Type', 'application/octet-stream');
-        res.set('Content-Disposition', 'attachment; filename="Album-Recuerdos-LightSound.zip"');
+        res.set('Content-Disposition', 'attachment; filename="Album-Recuerdos-XV-MAJO.zip"');
         res.set('Content-Length', zipBuffer.length);
         return res.send(zipBuffer);
     } catch (err) {
